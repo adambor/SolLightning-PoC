@@ -34,8 +34,17 @@ function SwapTab(props) {
                                 }
                                 if (result) {
                                     console.log(result);
-                                    const resultText = result.getText();
+                                    let resultText = result.getText();
                                     console.log(resultText);
+                                    if (resultText.startsWith("lightning:")) {
+                                        resultText = resultText.substring(10);
+                                    }
+                                    if (resultText.startsWith("bitcoin:")) {
+                                        resultText = resultText.substring(8);
+                                        if (resultText.includes("?")) {
+                                            resultText = resultText.split("?")[0];
+                                        }
+                                    }
                                     setScanning(false);
                                     setAddress(resultText);
                                     setVerifyAddress(true);
