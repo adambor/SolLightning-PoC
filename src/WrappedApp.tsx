@@ -1,4 +1,4 @@
-import {BTCLNtoSolClaim} from "./components/BTCLNtoSolPanel";
+import {BTCLNtoSolClaim, BTCtoSolClaim} from "./components/BTCLNtoSolPanel";
 import {SoltoBTCLNRefund} from "./components/SolToBTCLNPanel";
 import SwapTab from "./components/SwapTab";
 import * as React from "react";
@@ -10,6 +10,9 @@ import {AnchorProvider} from "@project-serum/anchor";
 
 import {Swapper, IBTCxtoSolSwap, ISoltoBTCxSwap} from "sollightning-sdk";
 import {FEConstants} from "./FEConstants";
+import {PublicKey} from "@solana/web3.js";
+import BTCLNtoSolSwap from "sollightning-sdk/dist/bridge/btclntosol/BTCLNtoSolSwap";
+import BTCtoSolNewSwap from "sollightning-sdk/dist/bridge/btctosolNew/BTCtoSolNewSwap";
 
 export default function WrappedApp() {
 
@@ -75,15 +78,28 @@ export default function WrappedApp() {
                                 <Card.Title>Incomplete swaps (BTCLN-{'>'}EVM)</Card.Title>
                                 <Card.Body>
                                     {claimableBTCLNtoEVM.map((e,index) => {
-                                        return (
-                                            <BTCLNtoSolClaim key={index} signer={provider} swap={e} onError={setError} onSuccess={() => {
-                                                setClaimableBTCLNtoEVM(prevState => {
-                                                    const cpy = [...prevState];
-                                                    cpy.splice(index, 1);
-                                                    return cpy;
-                                                });
-                                            }}/>
-                                        )
+                                        if(e instanceof BTCLNtoSolSwap) {
+                                            return (
+                                                <BTCLNtoSolClaim key={index} signer={provider} swap={e} onError={setError} onSuccess={() => {
+                                                    setClaimableBTCLNtoEVM(prevState => {
+                                                        const cpy = [...prevState];
+                                                        cpy.splice(index, 1);
+                                                        return cpy;
+                                                    });
+                                                }}/>
+                                            );
+                                        }
+                                        if(e instanceof BTCtoSolNewSwap) {
+                                            return (
+                                                <BTCtoSolClaim key={index} signer={provider} swap={e} onError={setError} onSuccess={() => {
+                                                    setClaimableBTCLNtoEVM(prevState => {
+                                                        const cpy = [...prevState];
+                                                        cpy.splice(index, 1);
+                                                        return cpy;
+                                                    });
+                                                }}/>
+                                            );
+                                        }
                                     })}
                                 </Card.Body>
                             </Card>

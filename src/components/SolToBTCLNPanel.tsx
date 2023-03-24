@@ -5,7 +5,7 @@ import * as React from "react";
 import {Alert, Button, Spinner} from "react-bootstrap";
 import {AnchorProvider, BN} from "@project-serum/anchor";
 import {FEConstants} from "../FEConstants";
-import {Swapper, SwapType, ISoltoBTCxSwap, SoltoBTCLNSwapState} from "sollightning-sdk";
+import {Swapper, SwapType, ISoltoBTCxSwap, SolToBTCxSwapState} from "sollightning-sdk";
 
 export function SoltoBTCLNRefund(props: {
     signer: AnchorProvider,
@@ -22,6 +22,7 @@ export function SoltoBTCLNRefund(props: {
 
     const abortController = useRef<AbortController>(null);
 
+
     useEffect(() => {
         abortController.current = new AbortController();
         if(props.swap==null) {
@@ -33,7 +34,7 @@ export function SoltoBTCLNRefund(props: {
 
         const listener = (swap) => {
             setState(swap.state);
-            if(swap.state===SoltoBTCLNSwapState.CREATED) {
+            if(swap.state===SolToBTCxSwapState.CREATED) {
                 setLoading(true);
                 (async() => {
 
@@ -107,13 +108,13 @@ export function SoltoBTCLNRefund(props: {
             <b>Fee: </b>{props.swap==null ? "0.00000000" : new BigNumber(props.swap.getFee().toString()).dividedBy(FEConstants.satsPerBitcoin).toFixed(8)} BTC
             <b>Total: </b>{props.swap==null ? "0.00000000" : new BigNumber(props.swap.getInAmount().toString()).dividedBy(FEConstants.satsPerBitcoin).toFixed(8)} BTC
 
-            {state===SoltoBTCLNSwapState.CREATED ? (
+            {state===SolToBTCxSwapState.CREATED ? (
                 <>
                     <Button disabled={sendingTx} onClick={pay}>
                         Pay {props.swap==null ? "" : new BigNumber(props.swap.getInAmount().toString()).dividedBy(FEConstants.satsPerBitcoin).toFixed(8)} BTC
                     </Button>
                 </>
-            ) : state===SoltoBTCLNSwapState.REFUNDABLE ? (
+            ) : state===SolToBTCxSwapState.REFUNDABLE ? (
                 <>
                     <Alert variant={"error"}>
                         Error occurred when trying to process the swap (recipient unreachable?)
@@ -122,7 +123,7 @@ export function SoltoBTCLNRefund(props: {
                         Refund {props.swap==null ? "" : new BigNumber(props.swap.getInAmount().toString()).dividedBy(FEConstants.satsPerBitcoin).toFixed(8)} BTC
                     </Button>
                 </>
-            ) : state===SoltoBTCLNSwapState.COMMITED ? (
+            ) : state===SolToBTCxSwapState.COMMITED ? (
                 <>
                     {props.swap.getTxId()!=null ? (
                         <Alert variant="success">
@@ -135,15 +136,15 @@ export function SoltoBTCLNRefund(props: {
                         </>
                     )}
                 </>
-            ) : state===SoltoBTCLNSwapState.CLAIMED ? (
+            ) : state===SolToBTCxSwapState.CLAIMED ? (
                 <Alert variant="success">
                     Swap successful ({props.swap.getTxId()})
                 </Alert>
-            ) : state===SoltoBTCLNSwapState.REFUNDED ? (
+            ) : state===SolToBTCxSwapState.REFUNDED ? (
                 <Alert variant="danger">
                     Swap failed (Money refunded)
                 </Alert>
-            ) : state===SoltoBTCLNSwapState.FAILED ? (
+            ) : state===SolToBTCxSwapState.FAILED ? (
                 <Alert variant="danger">
                     Swap failed
                 </Alert>
