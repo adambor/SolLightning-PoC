@@ -6,27 +6,24 @@ import {useEffect} from "react";
 import {useState} from "react";
 import {Card} from "react-bootstrap";
 import {useConnection, useAnchorWallet, AnchorWallet} from "@solana/wallet-adapter-react";
-import {AnchorProvider} from "@project-serum/anchor";
+import {AnchorProvider} from "@coral-xyz/anchor";
 
-import {Swapper, IBTCxtoSolSwap, ISoltoBTCxSwap} from "sollightning-sdk";
-import {FEConstants} from "./FEConstants";
-import {PublicKey} from "@solana/web3.js";
-import BTCLNtoSolSwap from "sollightning-sdk/dist/bridge/btclntosol/BTCLNtoSolSwap";
-import BTCtoSolNewSwap from "sollightning-sdk/dist/bridge/btctosolNew/BTCtoSolNewSwap";
+import {SolanaSwapper, IBTCxtoSolSwap, ISolToBTCxSwap, BTCLNtoSolSwap, BTCtoSolNewSwap, CoinGeckoSwapPrice} from "sollightning-sdk";
+import * as BN from "bn.js";
 
 export default function WrappedApp() {
 
-    const wallet: AnchorWallet = useAnchorWallet();
+    const wallet: any = useAnchorWallet();
     const {connection} = useConnection();
 
     const [provider, setProvider] = useState<AnchorProvider>();
 
     const [error, setError] = useState<string>();
 
-    const [swapper, setSwapper] = useState<Swapper>();
+    const [swapper, setSwapper] = useState<SolanaSwapper>();
 
-    const [claimableBTCLNtoEVM, setClaimableBTCLNtoEVM] = useState<IBTCxtoSolSwap[]>();
-    const [refundableEVMtoBTCLN, setRefundableEVMtoBTCLN] = useState<ISoltoBTCxSwap[]>();
+    const [claimableBTCLNtoEVM, setClaimableBTCLNtoEVM] = useState<IBTCxtoSolSwap<any>[]>();
+    const [refundableEVMtoBTCLN, setRefundableEVMtoBTCLN] = useState<ISolToBTCxSwap<any>[]>();
 
     useEffect(() => {
 
@@ -49,9 +46,13 @@ export default function WrappedApp() {
             try {
                 console.log("init start");
 
-                const swapper = new Swapper(_provider, FEConstants.url, FEConstants.customPorts);
+                const swapper = new SolanaSwapper(_provider, {
+                    pricing: new CoinGeckoSwapPrice(new BN(2500))
+                });
 
                 await swapper.init();
+
+                console.log("Swapper initialized, getting claimable swaps...");
 
                 setClaimableBTCLNtoEVM(await swapper.getClaimableSwaps());
 

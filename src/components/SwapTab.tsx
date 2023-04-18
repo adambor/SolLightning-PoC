@@ -6,17 +6,16 @@ import {Button, Card, Modal} from "react-bootstrap";
 import * as bolt11 from "bolt11";
 import SolToBTCLNPanel from "./SolToBTCLNPanel";
 import BTCLNtoSolPanel from "./BTCLNtoSolPanel";
-import {AnchorProvider} from "@project-serum/anchor";
+import {AnchorProvider} from "@coral-xyz/anchor";
 import {QrReader} from "react-qr-reader";
 import {ic_qr_code} from 'react-icons-kit/md/ic_qr_code'
 import Icon from "react-icons-kit";
-import * as bitcoin from "bitcoinjs-lib";
-import {Swapper, SwapType} from "sollightning-sdk";
+import {SolanaSwapper, SwapType} from "sollightning-sdk";
 import {FEConstants} from "../FEConstants";
 
 function SwapTab(props: {
     signer: AnchorProvider,
-    swapper: Swapper
+    swapper: SolanaSwapper
 }) {
 
     const [amount, setAmount] = useState<string>(null);
@@ -24,6 +23,9 @@ function SwapTab(props: {
 
     const [kind, setKind] = useState<"BTCLNtoSol" | "SoltoBTCLN" | "SoltoBTC" | "BTCtoSol">("SoltoBTCLN");
     const kindRef = useRef<ValidatedInputRef>();
+
+    const [token, setToken] = useState<string>(FEConstants.wbtcToken.toBase58());
+    const tokenRef = useRef<ValidatedInputRef>();
 
     const [address, setAddress] = useState<string>(null);
     const sendToRef = useRef<ValidatedInputRef>();
@@ -89,6 +91,46 @@ function SwapTab(props: {
             <Card.Body>
                 <ValidatedInput
                     disabled={step!==0}
+                    inputRef={tokenRef}
+                    className="mb-4"
+                    type="select"
+                    label={(
+                        <span className="fw-semibold">Token</span>
+                    )}
+                    size={"lg"}
+                    value={token}
+                    onChange={(val) => {
+                        console.log("Value selected: ", val);
+                        setToken(val);
+                    }}
+                    placeholder="Enter amount you want to send"
+                    onValidate={(val: any) => {
+                        return null;
+                    }}
+                    options={
+                        [
+                            {
+                                value: "WBTC",
+                                key: FEConstants.wbtcToken.toBase58()
+                            },
+                            {
+                                value: "USDC",
+                                key: FEConstants.usdcToken.toBase58()
+                            },
+                            {
+                                value: "USDT",
+                                key: FEConstants.usdtToken.toBase58()
+                            },
+                            {
+                                value: "WSOL",
+                                key: FEConstants.wsolToken.toBase58()
+                            }
+                        ]
+                    }
+                />
+
+                <ValidatedInput
+                    disabled={step!==0}
                     inputRef={kindRef}
                     className="mb-4"
                     type="select"
@@ -139,10 +181,10 @@ function SwapTab(props: {
                             setAmount(val);
                         }}
                         min={
-                            (kind==="BTCLNtoSol" ? new BigNumber(Swapper.getMinimum(SwapType.BTCLN_TO_SOL).toString(10)) : new BigNumber(Swapper.getMinimum(SwapType.BTC_TO_SOL).toString(10)))
+                            (kind==="BTCLNtoSol" ? new BigNumber(props.swapper.getMinimum(SwapType.BTCLN_TO_SOL).toString(10)) : new BigNumber(props.swapper.getMinimum(SwapType.BTC_TO_SOL).toString(10)))
                             .dividedBy(FEConstants.satsPerBitcoin)}
                         max={
-                            (kind==="BTCLNtoSol" ? new BigNumber(Swapper.getMaximum(SwapType.BTCLN_TO_SOL).toString(10)) : new BigNumber(Swapper.getMaximum(SwapType.BTC_TO_SOL).toString(10)))
+                            (kind==="BTCLNtoSol" ? new BigNumber(props.swapper.getMaximum(SwapType.BTCLN_TO_SOL).toString(10)) : new BigNumber(props.swapper.getMaximum(SwapType.BTC_TO_SOL).toString(10)))
                             .dividedBy(FEConstants.satsPerBitcoin)}
                         step={new BigNumber("0.00000001")}
                         onValidate={(val: any) => {
@@ -208,7 +250,7 @@ function SwapTab(props: {
                             placeholder="Enter destination address"
                             onValidate={(val: any) => {
                                 if(val==="") return "Cannot be empty";
-                                if(!Swapper.isValidBitcoinAddress(val)) return "Invalid bitcoin address";
+                                if(!props.swapper.isValidBitcoinAddress(val)) return "Invalid bitcoin address";
                             }}
                         />
                         <ValidatedInput
@@ -222,8 +264,8 @@ function SwapTab(props: {
                             onChange={(val) => {
                                 setAmount(val);
                             }}
-                            min={new BigNumber(Swapper.getMinimum(SwapType.SOL_TO_BTC).toString(10)).dividedBy(FEConstants.satsPerBitcoin)}
-                            max={new BigNumber(Swapper.getMaximum(SwapType.SOL_TO_BTC).toString(10)).dividedBy(FEConstants.satsPerBitcoin)}
+                            min={new BigNumber(props.swapper.getMinimum(SwapType.SOL_TO_BTC).toString(10)).dividedBy(FEConstants.satsPerBitcoin)}
+                            max={new BigNumber(props.swapper.getMaximum(SwapType.SOL_TO_BTC).toString(10)).dividedBy(FEConstants.satsPerBitcoin)}
                             step={new BigNumber("0.00000001")}
                             onValidate={(val: any) => {
                                 return val==="" ? "Amount cannot be empty" : null;
@@ -234,13 +276,13 @@ function SwapTab(props: {
                 {step===1 ? (
                     <>
                         {kind==="SoltoBTCLN" ? (
-                            <SolToBTCLNPanel bolt11PayReq={address} signer={props.signer} swapType={SwapType.SOL_TO_BTCLN} swapper={props.swapper}/>
+                            <SolToBTCLNPanel token={token} bolt11PayReq={address} signer={props.signer} swapType={SwapType.SOL_TO_BTCLN} swapper={props.swapper}/>
                         ) : kind==="BTCLNtoSol" ? (
-                            <BTCLNtoSolPanel amount={new BigNumber(amount).multipliedBy(FEConstants.satsPerBitcoin)} signer={props.signer} swapType={SwapType.BTCLN_TO_SOL} swapper={props.swapper}/>
+                            <BTCLNtoSolPanel token={token} amount={new BigNumber(amount).multipliedBy(FEConstants.satsPerBitcoin)} signer={props.signer} swapType={SwapType.BTCLN_TO_SOL} swapper={props.swapper}/>
                         ) : kind==="BTCtoSol" ? (
-                            <BTCLNtoSolPanel amount={new BigNumber(amount).multipliedBy(FEConstants.satsPerBitcoin)} signer={props.signer} swapType={SwapType.BTC_TO_SOL} swapper={props.swapper}/>
+                            <BTCLNtoSolPanel token={token} amount={new BigNumber(amount).multipliedBy(FEConstants.satsPerBitcoin)} signer={props.signer} swapType={SwapType.BTC_TO_SOL} swapper={props.swapper}/>
                         ) : (
-                            <SolToBTCLNPanel bolt11PayReq={address} amount={new BigNumber(amount).multipliedBy(FEConstants.satsPerBitcoin)} signer={props.signer} swapType={SwapType.SOL_TO_BTC} swapper={props.swapper}/>
+                            <SolToBTCLNPanel token={token} bolt11PayReq={address} amount={new BigNumber(amount).multipliedBy(FEConstants.satsPerBitcoin)} signer={props.signer} swapType={SwapType.SOL_TO_BTC} swapper={props.swapper}/>
                         )}
                         <Button className="mt-3" variant="secondary" size={"lg"} onClick={() => {
                             setStep(0);
@@ -250,6 +292,10 @@ function SwapTab(props: {
                     </>
                 ) : (
                     <Button className="mt-3" size={"lg"} onClick={() => {
+                        if(!tokenRef.current.validate()) {
+                            return;
+                        }
+
                         if(kind==="BTCLNtoSol" || kind==="BTCtoSol") {
                             if(!amountRef.current.validate()) {
                                 return;

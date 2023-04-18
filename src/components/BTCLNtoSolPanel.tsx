@@ -4,15 +4,16 @@ import * as React from "react";
 import ValidatedInput from "./ValidatedInput";
 import {Alert, Button, Spinner} from "react-bootstrap";
 import QRCode from "qrcode.react";
-import {AnchorProvider, BN} from "@project-serum/anchor";
+import {AnchorProvider, BN} from "@coral-xyz/anchor";
 import {FEConstants} from "../FEConstants";
-import {IBTCxtoSolSwap, BTCxtoSolSwapState, Swapper, SwapType, BTCtoSolNewSwapState, BTCtoSolNewSwap, BTCLNtoSolSwap} from "sollightning-sdk";
+import {IBTCxtoSolSwap, BTCxtoSolSwapState, SolanaSwapper, SwapType, BTCtoSolNewSwapState, BTCtoSolNewSwap, BTCLNtoSolSwap} from "sollightning-sdk";
+import {PublicKey} from "@solana/web3.js";
 
 export function BTCLNtoSolClaim(props: {
     signer: AnchorProvider,
     onError: (string) => any,
     onSuccess: () => any,
-    swap: BTCLNtoSolSwap
+    swap: BTCLNtoSolSwap<any>
 }) {
 
     const [sendingTx, setSendingTx] = useState<boolean>(false);
@@ -62,7 +63,7 @@ export function BTCLNtoSolClaim(props: {
         setSendingTx(true);
 
         try {
-            await props.swap.commitAndClaim(props.signer);
+            await props.swap.commitAndClaim();
             props.onSuccess();
         } catch (e) {
             console.error(e);
@@ -103,6 +104,11 @@ export function BTCLNtoSolClaim(props: {
 
     }, [props.swap]);
 
+    const tokenData = FEConstants.tokenData[props.swap.data.getToken().toString()];
+    const tokenSymbol = tokenData.symbol;
+    const tokenDecimals = tokenData.decimals;
+    const tokenDivisor = new BigNumber(10).pow(new BigNumber(tokenData.decimals));
+
     return (
         <div className="d-flex flex-column justify-content-center align-items-center">
             {state===BTCxtoSolSwapState.PR_CREATED && txId==null ? (
@@ -130,9 +136,9 @@ export function BTCLNtoSolClaim(props: {
                 </>
             ) : ""}
 
-            <b>Amount: </b>{props.swap==null ? "0.00000000" : new BigNumber(props.swap.getInAmount().toString()).dividedBy(FEConstants.satsPerBitcoin).toFixed(8)} BTC
-            <b>Fee: </b>{props.swap==null ? "0.00000000" : new BigNumber(props.swap.getFee().toString()).dividedBy(FEConstants.satsPerBitcoin).toFixed(8)} BTC
-            <b>Total received: </b>{props.swap==null ? "0.00000000" : new BigNumber(props.swap.getOutAmount().toString()).dividedBy(FEConstants.satsPerBitcoin).toFixed(8)} BTC
+            <b>Amount: </b>{props.swap==null ? "0."+"0".repeat(tokenDecimals) : new BigNumber(props.swap.getOutAmountWithoutFee().toString()).dividedBy(tokenDivisor).toFixed(tokenDecimals)} {tokenSymbol}
+            <b>Fee: </b>{props.swap==null ? "0."+"0".repeat(tokenDecimals) : new BigNumber(props.swap.getFee().toString()).dividedBy(tokenDivisor).toFixed(tokenDecimals)} {tokenSymbol}
+            <b>Total received: </b>{props.swap==null ? "0."+"0".repeat(tokenDecimals) : new BigNumber(props.swap.getOutAmount().toString()).dividedBy(tokenDivisor).toFixed(tokenDecimals)} {tokenSymbol}
 
             {state===BTCxtoSolSwapState.PR_CREATED ? (
                 <div className="d-flex flex-column justify-content-center align-items-center mt-4">
@@ -166,7 +172,7 @@ export function BTCLNtoSolClaim(props: {
                     {/*</Button>*/}
 
                     <Button onClick={commitAndClaim} disabled={sendingTx}>
-                        Claim {props.swap==null ? "" : new BigNumber(props.swap.getOutAmount().toString()).dividedBy(FEConstants.satsPerBitcoin).toFixed(8)} BTC
+                        Claim {props.swap==null ? "" : new BigNumber(props.swap.getOutAmount().toString()).dividedBy(tokenDivisor).toFixed(tokenDecimals)} {tokenSymbol}
                     </Button>
                 </>
             ) : state===BTCxtoSolSwapState.CLAIM_CLAIMED ? (
@@ -188,7 +194,7 @@ export function BTCtoSolClaim(props: {
     signer: AnchorProvider,
     onError: (string) => any,
     onSuccess: () => any,
-    swap: BTCtoSolNewSwap
+    swap: BTCtoSolNewSwap<any>
 }) {
 
     const [sendingTx, setSendingTx] = useState<boolean>(false);
@@ -205,7 +211,7 @@ export function BTCtoSolClaim(props: {
         setSendingTx(true);
 
         try {
-            await props.swap.commit(props.signer);
+            await props.swap.commit();
         } catch (e) {
             if(typeof(e)==="string") {
                 props.onError(e);
@@ -222,7 +228,7 @@ export function BTCtoSolClaim(props: {
 
         let success = false;
         try {
-            await props.swap.claim(props.signer);
+            await props.swap.claim();
             success = true;
             props.onSuccess();
         } catch (e) {
@@ -281,6 +287,11 @@ export function BTCtoSolClaim(props: {
 
     }, [props.swap]);
 
+    const tokenData = FEConstants.tokenData[props.swap.data.getToken().toString()];
+    const tokenSymbol = tokenData.symbol;
+    const tokenDecimals = tokenData.decimals;
+    const tokenDivisor = new BigNumber(10).pow(new BigNumber(tokenData.decimals));
+
     return (
         <div className="d-flex flex-column justify-content-center align-items-center">
             {state===BTCtoSolNewSwapState.CLAIM_COMMITED && txId==null ? (
@@ -308,9 +319,9 @@ export function BTCtoSolClaim(props: {
                 </>
             ) : ""}
 
-            <b>Amount: </b>{props.swap==null ? "0.00000000" : new BigNumber(props.swap.getInAmount().toString()).dividedBy(FEConstants.satsPerBitcoin).toFixed(8)} BTC
-            <b>Fee: </b>{props.swap==null ? "0.00000000" : new BigNumber(props.swap.getFee().toString()).dividedBy(FEConstants.satsPerBitcoin).toFixed(8)} BTC
-            <b>Total received: </b>{props.swap==null ? "0.00000000" : new BigNumber(props.swap.getOutAmount().toString()).dividedBy(FEConstants.satsPerBitcoin).toFixed(8)} BTC
+            <b>Amount: </b>{props.swap==null ? "0."+"0".repeat(tokenDecimals) : new BigNumber(props.swap.getOutAmountWithoutFee().toString()).dividedBy(tokenDivisor).toFixed(tokenDecimals)} {tokenSymbol}
+            <b>Fee: </b>{props.swap==null ? "0."+"0".repeat(tokenDecimals) : new BigNumber(props.swap.getFee().toString()).dividedBy(tokenDivisor).toFixed(tokenDecimals)} {tokenSymbol}
+            <b>Total received: </b>{props.swap==null ? "0."+"0".repeat(tokenDecimals) : new BigNumber(props.swap.getOutAmount().toString()).dividedBy(tokenDivisor).toFixed(tokenDecimals)} {tokenSymbol}
 
             {state===BTCtoSolNewSwapState.CLAIM_COMMITED ? (
                 <div className="d-flex flex-column justify-content-center align-items-center mt-4">
@@ -348,13 +359,13 @@ export function BTCtoSolClaim(props: {
                     {/*</Button>*/}
 
                     <Button onClick={commit} disabled={sendingTx}>
-                        Begin claim of {props.swap==null ? "" : new BigNumber(props.swap.getOutAmount().toString()).dividedBy(FEConstants.satsPerBitcoin).toFixed(8)} BTC
+                        Begin claim of {props.swap==null ? "" : new BigNumber(props.swap.getOutAmount().toString()).dividedBy(tokenDivisor).toFixed(tokenDecimals)} {tokenSymbol}
                     </Button>
                 </>
             ) : state===BTCtoSolNewSwapState.BTC_TX_CONFIRMED ? (
                 <>
                     <Button onClick={claim} disabled={sendingTx}>
-                        Claim {props.swap==null ? "" : new BigNumber(props.swap.getOutAmount().toString()).dividedBy(FEConstants.satsPerBitcoin).toFixed(8)} BTC
+                        Claim {props.swap==null ? "" : new BigNumber(props.swap.getOutAmount().toString()).dividedBy(tokenDivisor).toFixed(tokenDecimals)} {tokenSymbol}
                     </Button>
                 </>
             ) : state===BTCtoSolNewSwapState.CLAIM_CLAIMED ? (
@@ -373,16 +384,17 @@ export function BTCtoSolClaim(props: {
 }
 
 function BTCLNtoSolPanel(props: {
+    token: string,
     amount: BigNumber,
     signer: AnchorProvider,
-    swapper: Swapper,
+    swapper: SolanaSwapper,
     swapType: SwapType.BTC_TO_SOL | SwapType.BTCLN_TO_SOL
 }) {
 
     const [loading, setLoading] = useState<boolean>(null);
     const [error, setError] = useState<string>(null);
 
-    const [swap, setSwap] = useState<IBTCxtoSolSwap>(null);
+    const [swap, setSwap] = useState<any>(null);
 
     useEffect(() => {
         const _abortController = new AbortController();
@@ -400,10 +412,10 @@ function BTCLNtoSolPanel(props: {
                 try {
                     let createdSwap;
                     if(props.swapType===SwapType.BTCLN_TO_SOL) {
-                        createdSwap = await props.swapper.createBTCLNtoSolSwap(new BN(props.amount.toString(10)));
+                        createdSwap = await props.swapper.createBTCLNtoSolSwap(new PublicKey(props.token), new BN(props.amount.toString(10)));
                     }
                     if(props.swapType===SwapType.BTC_TO_SOL) {
-                        createdSwap = await props.swapper.createBTCtoSolSwap(new BN(props.amount.toString(10)));
+                        createdSwap = await props.swapper.createBTCtoSolSwap(new PublicKey(props.token), new BN(props.amount.toString(10)));
                     }
                     setSwap(createdSwap);
                     setLoading(false);

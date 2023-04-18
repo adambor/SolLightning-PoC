@@ -9,13 +9,15 @@ import BTCLNtoSolPanel from "./BTCLNtoSolPanel";
 import { QrReader } from "react-qr-reader";
 import { ic_qr_code } from 'react-icons-kit/md/ic_qr_code';
 import Icon from "react-icons-kit";
-import { Swapper, SwapType } from "sollightning-sdk";
+import { SwapType } from "sollightning-sdk";
 import { FEConstants } from "../FEConstants";
 function SwapTab(props) {
     const [amount, setAmount] = useState(null);
     const amountRef = useRef();
     const [kind, setKind] = useState("SoltoBTCLN");
     const kindRef = useRef();
+    const [token, setToken] = useState(FEConstants.wbtcToken.toBase58());
+    const tokenRef = useRef();
     const [address, setAddress] = useState(null);
     const sendToRef = useRef();
     const [scanning, setScanning] = useState(false);
@@ -51,7 +53,29 @@ function SwapTab(props) {
                                 }
                             }, constraints: {
                                 facingMode: "environment"
-                            } }) }), _jsx(Modal.Footer, { children: _jsx(Button, Object.assign({ variant: "secondary", onClick: () => setScanning(false) }, { children: "Close" })) })] })), _jsx(Card.Title, { children: "Swap now" }), _jsxs(Card.Body, { children: [_jsx(ValidatedInput, { disabled: step !== 0, inputRef: kindRef, className: "mb-4", type: "select", label: (_jsx("span", Object.assign({ className: "fw-semibold" }, { children: "Type" }))), size: "lg", value: "" + kind, onChange: (val) => {
+                            } }) }), _jsx(Modal.Footer, { children: _jsx(Button, Object.assign({ variant: "secondary", onClick: () => setScanning(false) }, { children: "Close" })) })] })), _jsx(Card.Title, { children: "Swap now" }), _jsxs(Card.Body, { children: [_jsx(ValidatedInput, { disabled: step !== 0, inputRef: tokenRef, className: "mb-4", type: "select", label: (_jsx("span", Object.assign({ className: "fw-semibold" }, { children: "Token" }))), size: "lg", value: token, onChange: (val) => {
+                            console.log("Value selected: ", val);
+                            setToken(val);
+                        }, placeholder: "Enter amount you want to send", onValidate: (val) => {
+                            return null;
+                        }, options: [
+                            {
+                                value: "WBTC",
+                                key: FEConstants.wbtcToken.toBase58()
+                            },
+                            {
+                                value: "USDC",
+                                key: FEConstants.usdcToken.toBase58()
+                            },
+                            {
+                                value: "USDT",
+                                key: FEConstants.usdtToken.toBase58()
+                            },
+                            {
+                                value: "WSOL",
+                                key: FEConstants.wsolToken.toBase58()
+                            }
+                        ] }), _jsx(ValidatedInput, { disabled: step !== 0, inputRef: kindRef, className: "mb-4", type: "select", label: (_jsx("span", Object.assign({ className: "fw-semibold" }, { children: "Type" }))), size: "lg", value: "" + kind, onChange: (val) => {
                             console.log("Value selected: ", val);
                             setKind(val);
                         }, placeholder: "Enter amount you want to send", onValidate: (val) => {
@@ -75,8 +99,8 @@ function SwapTab(props) {
                             }
                         ] }), kind === "BTCLNtoSol" || kind === "BTCtoSol" ? (_jsx(ValidatedInput, { disabled: step !== 0, inputRef: amountRef, className: "mt-1 strip-group-text form-align-end", type: "number", value: amount, size: "lg", label: (_jsx("span", Object.assign({ className: "fw-semibold" }, { children: "Enter amount" }))), onChange: (val) => {
                             setAmount(val);
-                        }, min: (kind === "BTCLNtoSol" ? new BigNumber(Swapper.getMinimum(SwapType.BTCLN_TO_SOL).toString(10)) : new BigNumber(Swapper.getMinimum(SwapType.BTC_TO_SOL).toString(10)))
-                            .dividedBy(FEConstants.satsPerBitcoin), max: (kind === "BTCLNtoSol" ? new BigNumber(Swapper.getMaximum(SwapType.BTCLN_TO_SOL).toString(10)) : new BigNumber(Swapper.getMaximum(SwapType.BTC_TO_SOL).toString(10)))
+                        }, min: (kind === "BTCLNtoSol" ? new BigNumber(props.swapper.getMinimum(SwapType.BTCLN_TO_SOL).toString(10)) : new BigNumber(props.swapper.getMinimum(SwapType.BTC_TO_SOL).toString(10)))
+                            .dividedBy(FEConstants.satsPerBitcoin), max: (kind === "BTCLNtoSol" ? new BigNumber(props.swapper.getMaximum(SwapType.BTCLN_TO_SOL).toString(10)) : new BigNumber(props.swapper.getMaximum(SwapType.BTC_TO_SOL).toString(10)))
                             .dividedBy(FEConstants.satsPerBitcoin), step: new BigNumber("0.00000001"), onValidate: (val) => {
                             return val === "" ? "Amount cannot be empty" : null;
                         } })) : kind === "SoltoBTCLN" ? (_jsx(ValidatedInput, { inputRef: sendToRef, className: "mb-4", type: "text", disabled: step !== 0, label: (_jsx("span", Object.assign({ className: "fw-semibold" }, { children: "Send to" }))), textEnd: (_jsx("a", Object.assign({ href: "javascript:void(0);", onClick: () => setScanning(true) }, { children: _jsx(Icon, { icon: ic_qr_code }) }))), size: "lg", value: address, onChange: setAddress, placeholder: "Enter destination address", onValidate: (val) => {
@@ -102,15 +126,18 @@ function SwapTab(props) {
                         } })) : (_jsxs(_Fragment, { children: [_jsx(ValidatedInput, { inputRef: sendToRef, className: "mb-4", type: "text", disabled: step !== 0, label: (_jsx("span", Object.assign({ className: "fw-semibold" }, { children: "Send to" }))), textEnd: (_jsx("a", Object.assign({ href: "javascript:void(0);", onClick: () => setScanning(true) }, { children: _jsx(Icon, { icon: ic_qr_code }) }))), size: "lg", value: address, onChange: setAddress, placeholder: "Enter destination address", onValidate: (val) => {
                                     if (val === "")
                                         return "Cannot be empty";
-                                    if (!Swapper.isValidBitcoinAddress(val))
+                                    if (!props.swapper.isValidBitcoinAddress(val))
                                         return "Invalid bitcoin address";
                                 } }), _jsx(ValidatedInput, { disabled: step !== 0, inputRef: amountRef, className: "mt-1 strip-group-text form-align-end", type: "number", value: amount, size: "lg", label: (_jsx("span", Object.assign({ className: "fw-semibold" }, { children: "Enter amount" }))), onChange: (val) => {
                                     setAmount(val);
-                                }, min: new BigNumber(Swapper.getMinimum(SwapType.SOL_TO_BTC).toString(10)).dividedBy(FEConstants.satsPerBitcoin), max: new BigNumber(Swapper.getMaximum(SwapType.SOL_TO_BTC).toString(10)).dividedBy(FEConstants.satsPerBitcoin), step: new BigNumber("0.00000001"), onValidate: (val) => {
+                                }, min: new BigNumber(props.swapper.getMinimum(SwapType.SOL_TO_BTC).toString(10)).dividedBy(FEConstants.satsPerBitcoin), max: new BigNumber(props.swapper.getMaximum(SwapType.SOL_TO_BTC).toString(10)).dividedBy(FEConstants.satsPerBitcoin), step: new BigNumber("0.00000001"), onValidate: (val) => {
                                     return val === "" ? "Amount cannot be empty" : null;
-                                } })] })), step === 1 ? (_jsxs(_Fragment, { children: [kind === "SoltoBTCLN" ? (_jsx(SolToBTCLNPanel, { bolt11PayReq: address, signer: props.signer, swapType: SwapType.SOL_TO_BTCLN, swapper: props.swapper })) : kind === "BTCLNtoSol" ? (_jsx(BTCLNtoSolPanel, { amount: new BigNumber(amount).multipliedBy(FEConstants.satsPerBitcoin), signer: props.signer, swapType: SwapType.BTCLN_TO_SOL, swapper: props.swapper })) : kind === "BTCtoSol" ? (_jsx(BTCLNtoSolPanel, { amount: new BigNumber(amount).multipliedBy(FEConstants.satsPerBitcoin), signer: props.signer, swapType: SwapType.BTC_TO_SOL, swapper: props.swapper })) : (_jsx(SolToBTCLNPanel, { bolt11PayReq: address, amount: new BigNumber(amount).multipliedBy(FEConstants.satsPerBitcoin), signer: props.signer, swapType: SwapType.SOL_TO_BTC, swapper: props.swapper })), _jsx(Button, Object.assign({ className: "mt-3", variant: "secondary", size: "lg", onClick: () => {
+                                } })] })), step === 1 ? (_jsxs(_Fragment, { children: [kind === "SoltoBTCLN" ? (_jsx(SolToBTCLNPanel, { token: token, bolt11PayReq: address, signer: props.signer, swapType: SwapType.SOL_TO_BTCLN, swapper: props.swapper })) : kind === "BTCLNtoSol" ? (_jsx(BTCLNtoSolPanel, { token: token, amount: new BigNumber(amount).multipliedBy(FEConstants.satsPerBitcoin), signer: props.signer, swapType: SwapType.BTCLN_TO_SOL, swapper: props.swapper })) : kind === "BTCtoSol" ? (_jsx(BTCLNtoSolPanel, { token: token, amount: new BigNumber(amount).multipliedBy(FEConstants.satsPerBitcoin), signer: props.signer, swapType: SwapType.BTC_TO_SOL, swapper: props.swapper })) : (_jsx(SolToBTCLNPanel, { token: token, bolt11PayReq: address, amount: new BigNumber(amount).multipliedBy(FEConstants.satsPerBitcoin), signer: props.signer, swapType: SwapType.SOL_TO_BTC, swapper: props.swapper })), _jsx(Button, Object.assign({ className: "mt-3", variant: "secondary", size: "lg", onClick: () => {
                                     setStep(0);
                                 } }, { children: "Back" }))] })) : (_jsx(Button, Object.assign({ className: "mt-3", size: "lg", onClick: () => {
+                            if (!tokenRef.current.validate()) {
+                                return;
+                            }
                             if (kind === "BTCLNtoSol" || kind === "BTCtoSol") {
                                 if (!amountRef.current.validate()) {
                                     return;

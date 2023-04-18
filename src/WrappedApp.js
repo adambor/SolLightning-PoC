@@ -6,11 +6,9 @@ import { useEffect } from "react";
 import { useState } from "react";
 import { Card } from "react-bootstrap";
 import { useConnection, useAnchorWallet } from "@solana/wallet-adapter-react";
-import { AnchorProvider } from "@project-serum/anchor";
-import { Swapper } from "sollightning-sdk";
-import { FEConstants } from "./FEConstants";
-import BTCLNtoSolSwap from "sollightning-sdk/dist/bridge/btclntosol/BTCLNtoSolSwap";
-import BTCtoSolNewSwap from "sollightning-sdk/dist/bridge/btctosolNew/BTCtoSolNewSwap";
+import { AnchorProvider } from "@coral-xyz/anchor";
+import { SolanaSwapper, BTCLNtoSolSwap, BTCtoSolNewSwap, CoinGeckoSwapPrice } from "sollightning-sdk";
+import * as BN from "bn.js";
 export default function WrappedApp() {
     const wallet = useAnchorWallet();
     const { connection } = useConnection();
@@ -33,8 +31,11 @@ export default function WrappedApp() {
         (async () => {
             try {
                 console.log("init start");
-                const swapper = new Swapper(_provider, FEConstants.url, FEConstants.customPorts);
+                const swapper = new SolanaSwapper(_provider, {
+                    pricing: new CoinGeckoSwapPrice(new BN(2500))
+                });
                 await swapper.init();
+                console.log("Swapper initialized, getting claimable swaps...");
                 setClaimableBTCLNtoEVM(await swapper.getClaimableSwaps());
                 setRefundableEVMtoBTCLN(await swapper.getRefundableSwaps());
                 setSwapper(swapper);
