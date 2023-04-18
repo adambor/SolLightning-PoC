@@ -14,12 +14,12 @@ export const FEConstants = {
     // },
     // url: "http://localhost:4000",
     // customPorts: null,
-    wbtcToken: new PublicKey("Ag6gw668H9PLQFyP482whvGDoAseBWfgs5AfXCAK3aMj"),
+    wbtcToken: new PublicKey("4Jar76rqMxBfLDLa1syMd7i4R2YhGSkz2EYiAFyNVxja"),
     usdcToken: new PublicKey("6jrUSQHX8MTJbtWpdbx65TAwUv1rLyCF6fVjr9yELS75"),
     usdtToken: new PublicKey("Ar5yfeSyDNDHyq1GvtcrDKjNcoVTQiv7JaVvuMDbGNDT"),
     wsolToken: new PublicKey("So11111111111111111111111111111111111111112"),
     tokenData: {
-        "Ag6gw668H9PLQFyP482whvGDoAseBWfgs5AfXCAK3aMj": {
+        "4Jar76rqMxBfLDLa1syMd7i4R2YhGSkz2EYiAFyNVxja": {
             decimals: 8,
             symbol: "WBTC"
         },

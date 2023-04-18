@@ -10,6 +10,7 @@ import {AnchorProvider} from "@coral-xyz/anchor";
 
 import {SolanaSwapper, IBTCxtoSolSwap, ISolToBTCxSwap, BTCLNtoSolSwap, BTCtoSolNewSwap, CoinGeckoSwapPrice} from "sollightning-sdk";
 import * as BN from "bn.js";
+import {FEConstants} from "./FEConstants";
 
 export default function WrappedApp() {
 
@@ -47,7 +48,14 @@ export default function WrappedApp() {
                 console.log("init start");
 
                 const swapper = new SolanaSwapper(_provider, {
-                    pricing: new CoinGeckoSwapPrice(new BN(2500))
+                    pricing: new CoinGeckoSwapPrice(
+                        new BN(2500),
+                        CoinGeckoSwapPrice.createCoinsMap(
+                            FEConstants.wbtcToken.toBase58(),
+                            FEConstants.usdcToken.toBase58(),
+                            FEConstants.usdtToken.toBase58()
+                        )
+                    )
                 });
 
                 await swapper.init();
