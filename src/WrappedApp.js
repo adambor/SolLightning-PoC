@@ -47,7 +47,7 @@ export default function WrappedApp() {
             }
         })();
     }, [wallet]);
-    return (_jsx(Card, Object.assign({ bg: "light" }, { children: _jsx(Card.Body, { children: swapper != null ? (_jsxs(_Fragment, { children: [claimableBTCLNtoEVM != null && claimableBTCLNtoEVM.length > 0 ? (_jsxs(Card, Object.assign({ className: "p-3" }, { children: [_jsxs(Card.Title, { children: ["Incomplete swaps (BTCLN-", '>', "EVM)"] }), _jsx(Card.Body, { children: claimableBTCLNtoEVM.map((e, index) => {
+    return (_jsx(Card, Object.assign({ bg: "light" }, { children: _jsx(Card.Body, { children: swapper != null ? (_jsxs(_Fragment, { children: [claimableBTCLNtoEVM != null && claimableBTCLNtoEVM.length > 0 ? (_jsxs(Card, Object.assign({ className: "p-3" }, { children: [_jsxs(Card.Title, { children: ["Incomplete swaps (BTCLN-", '>', "Solana)"] }), _jsx(Card.Body, { children: claimableBTCLNtoEVM.map((e, index) => {
                                     if (e instanceof BTCLNtoSolSwap) {
                                         return (_jsx(BTCLNtoSolClaim, { signer: provider, swap: e, onError: setError, onSuccess: () => {
                                                 setClaimableBTCLNtoEVM(prevState => {
@@ -66,7 +66,7 @@ export default function WrappedApp() {
                                                 });
                                             } }, index));
                                     }
-                                }) })] }))) : "", refundableEVMtoBTCLN != null && refundableEVMtoBTCLN.length > 0 ? (_jsxs(Card, Object.assign({ className: "p-3" }, { children: [_jsxs(Card.Title, { children: ["Incomplete swaps (EVM-", '>', "BTCLN)"] }), _jsx(Card.Body, { children: refundableEVMtoBTCLN.map((e, index) => {
+                                }) })] }))) : "", refundableEVMtoBTCLN != null && refundableEVMtoBTCLN.length > 0 ? (_jsxs(Card, Object.assign({ className: "p-3" }, { children: [_jsxs(Card.Title, { children: ["Incomplete swaps (Solana-", '>', "BTCLN)"] }), _jsx(Card.Body, { children: refundableEVMtoBTCLN.map((e, index) => {
                                     return (_jsx(SoltoBTCLNRefund, { signer: provider, swap: e, onError: setError, onSuccess: () => {
                                             setRefundableEVMtoBTCLN(prevState => {
                                                 const cpy = [...prevState];

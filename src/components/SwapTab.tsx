@@ -181,10 +181,10 @@ function SwapTab(props: {
                             setAmount(val);
                         }}
                         min={
-                            (kind==="BTCLNtoSol" ? new BigNumber(props.swapper.getMinimum(SwapType.BTCLN_TO_SOL).toString(10)) : new BigNumber(props.swapper.getMinimum(SwapType.BTC_TO_SOL).toString(10)))
+                            (kind==="BTCLNtoSol" ? new BigNumber(props.swapper.getMinimum(SwapType.FROM_BTCLN).toString(10)) : new BigNumber(props.swapper.getMinimum(SwapType.FROM_BTC).toString(10)))
                             .dividedBy(FEConstants.satsPerBitcoin)}
                         max={
-                            (kind==="BTCLNtoSol" ? new BigNumber(props.swapper.getMaximum(SwapType.BTCLN_TO_SOL).toString(10)) : new BigNumber(props.swapper.getMaximum(SwapType.BTC_TO_SOL).toString(10)))
+                            (kind==="BTCLNtoSol" ? new BigNumber(props.swapper.getMaximum(SwapType.FROM_BTCLN).toString(10)) : new BigNumber(props.swapper.getMaximum(SwapType.FROM_BTC).toString(10)))
                             .dividedBy(FEConstants.satsPerBitcoin)}
                         step={new BigNumber("0.00000001")}
                         onValidate={(val: any) => {
@@ -264,8 +264,8 @@ function SwapTab(props: {
                             onChange={(val) => {
                                 setAmount(val);
                             }}
-                            min={new BigNumber(props.swapper.getMinimum(SwapType.SOL_TO_BTC).toString(10)).dividedBy(FEConstants.satsPerBitcoin)}
-                            max={new BigNumber(props.swapper.getMaximum(SwapType.SOL_TO_BTC).toString(10)).dividedBy(FEConstants.satsPerBitcoin)}
+                            min={new BigNumber(props.swapper.getMinimum(SwapType.TO_BTC).toString(10)).dividedBy(FEConstants.satsPerBitcoin)}
+                            max={new BigNumber(props.swapper.getMaximum(SwapType.TO_BTC).toString(10)).dividedBy(FEConstants.satsPerBitcoin)}
                             step={new BigNumber("0.00000001")}
                             onValidate={(val: any) => {
                                 return val==="" ? "Amount cannot be empty" : null;
@@ -276,13 +276,13 @@ function SwapTab(props: {
                 {step===1 ? (
                     <>
                         {kind==="SoltoBTCLN" ? (
-                            <SolToBTCLNPanel token={token} bolt11PayReq={address} signer={props.signer} swapType={SwapType.SOL_TO_BTCLN} swapper={props.swapper}/>
+                            <SolToBTCLNPanel token={token} bolt11PayReq={address} signer={props.signer} swapType={SwapType.TO_BTCLN} swapper={props.swapper}/>
                         ) : kind==="BTCLNtoSol" ? (
-                            <BTCLNtoSolPanel token={token} amount={new BigNumber(amount).multipliedBy(FEConstants.satsPerBitcoin)} signer={props.signer} swapType={SwapType.BTCLN_TO_SOL} swapper={props.swapper}/>
+                            <BTCLNtoSolPanel token={token} amount={new BigNumber(amount).multipliedBy(FEConstants.satsPerBitcoin)} signer={props.signer} swapType={SwapType.FROM_BTCLN} swapper={props.swapper}/>
                         ) : kind==="BTCtoSol" ? (
-                            <BTCLNtoSolPanel token={token} amount={new BigNumber(amount).multipliedBy(FEConstants.satsPerBitcoin)} signer={props.signer} swapType={SwapType.BTC_TO_SOL} swapper={props.swapper}/>
+                            <BTCLNtoSolPanel token={token} amount={new BigNumber(amount).multipliedBy(FEConstants.satsPerBitcoin)} signer={props.signer} swapType={SwapType.FROM_BTC} swapper={props.swapper}/>
                         ) : (
-                            <SolToBTCLNPanel token={token} bolt11PayReq={address} amount={new BigNumber(amount).multipliedBy(FEConstants.satsPerBitcoin)} signer={props.signer} swapType={SwapType.SOL_TO_BTC} swapper={props.swapper}/>
+                            <SolToBTCLNPanel token={token} bolt11PayReq={address} amount={new BigNumber(amount).multipliedBy(FEConstants.satsPerBitcoin)} signer={props.signer} swapType={SwapType.TO_BTC} swapper={props.swapper}/>
                         )}
                         <Button className="mt-3" variant="secondary" size={"lg"} onClick={() => {
                             setStep(0);

@@ -388,7 +388,7 @@ function BTCLNtoSolPanel(props: {
     amount: BigNumber,
     signer: AnchorProvider,
     swapper: SolanaSwapper,
-    swapType: SwapType.BTC_TO_SOL | SwapType.BTCLN_TO_SOL
+    swapType: SwapType.FROM_BTC | SwapType.FROM_BTCLN
 }) {
 
     const [loading, setLoading] = useState<boolean>(null);
@@ -411,10 +411,10 @@ function BTCLNtoSolPanel(props: {
             if(props.amount!=null) {
                 try {
                     let createdSwap;
-                    if(props.swapType===SwapType.BTCLN_TO_SOL) {
+                    if(props.swapType===SwapType.FROM_BTCLN) {
                         createdSwap = await props.swapper.createBTCLNtoSolSwap(new PublicKey(props.token), new BN(props.amount.toString(10)));
                     }
-                    if(props.swapType===SwapType.BTC_TO_SOL) {
+                    if(props.swapType===SwapType.FROM_BTC) {
                         createdSwap = await props.swapper.createBTCtoSolSwap(new PublicKey(props.token), new BN(props.amount.toString(10)));
                     }
                     setSwap(createdSwap);

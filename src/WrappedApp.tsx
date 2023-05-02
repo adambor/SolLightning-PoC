@@ -84,7 +84,7 @@ export default function WrappedApp() {
                     <>
                         {claimableBTCLNtoEVM!=null && claimableBTCLNtoEVM.length>0 ? (
                             <Card className="p-3">
-                                <Card.Title>Incomplete swaps (BTCLN-{'>'}EVM)</Card.Title>
+                                <Card.Title>Incomplete swaps (BTCLN-{'>'}Solana)</Card.Title>
                                 <Card.Body>
                                     {claimableBTCLNtoEVM.map((e,index) => {
                                         if(e instanceof BTCLNtoSolSwap) {
@@ -115,7 +115,7 @@ export default function WrappedApp() {
                         ) : ""}
                         {refundableEVMtoBTCLN!=null && refundableEVMtoBTCLN.length>0 ? (
                             <Card className="p-3">
-                                <Card.Title>Incomplete swaps (EVM-{'>'}BTCLN)</Card.Title>
+                                <Card.Title>Incomplete swaps (Solana-{'>'}BTCLN)</Card.Title>
                                 <Card.Body>
                                     {refundableEVMtoBTCLN.map((e,index) => {
                                         return (

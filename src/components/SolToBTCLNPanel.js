@@ -101,10 +101,10 @@ function SolToBTCLNPanel(props) {
         (async () => {
             try {
                 let swap;
-                if (props.swapType === SwapType.SOL_TO_BTCLN) {
+                if (props.swapType === SwapType.TO_BTCLN) {
                     swap = await props.swapper.createSolToBTCLNSwap(new PublicKey(props.token), props.bolt11PayReq, 5 * 24 * 3600);
                 }
-                if (props.swapType === SwapType.SOL_TO_BTC) {
+                if (props.swapType === SwapType.TO_BTC) {
                     swap = await props.swapper.createSolToBTCSwap(new PublicKey(props.token), props.bolt11PayReq, new BN(props.amount.toString(10)));
                 }
                 setSwap(swap);
