@@ -1,6 +1,8 @@
 import BigNumber from "bignumber.js";
-import {SwapType} from "sollightning-sdk";
+import {SolanaChains, SwapType} from "sollightning-sdk";
 import {PublicKey} from "@solana/web3.js";
+
+const chain: ("MAINNET" | "DEVNET") = "MAINNET";
 
 export const FEConstants = {
     // expirySecondsBTCLNtoSol: 1*86400, //1 days
@@ -16,24 +18,25 @@ export const FEConstants = {
     // },
     // url: "http://localhost:4000",
     // customPorts: null,
-    wbtcToken: new PublicKey("4Jar76rqMxBfLDLa1syMd7i4R2YhGSkz2EYiAFyNVxja"),
-    usdcToken: new PublicKey("6jrUSQHX8MTJbtWpdbx65TAwUv1rLyCF6fVjr9yELS75"),
-    usdtToken: new PublicKey("Ar5yfeSyDNDHyq1GvtcrDKjNcoVTQiv7JaVvuMDbGNDT"),
-    wsolToken: new PublicKey("So11111111111111111111111111111111111111112"),
+    chain,
+    wbtcToken: new PublicKey(SolanaChains[chain].tokens.WBTC),
+    usdcToken: new PublicKey(SolanaChains[chain].tokens.USDC),
+    usdtToken: new PublicKey(SolanaChains[chain].tokens.USDT),
+    wsolToken: new PublicKey(SolanaChains[chain].tokens.WSOL),
     tokenData: {
-        "4Jar76rqMxBfLDLa1syMd7i4R2YhGSkz2EYiAFyNVxja": {
+        [SolanaChains[chain].tokens.WBTC]: {
             decimals: 8,
             symbol: "WBTC"
         },
-        "6jrUSQHX8MTJbtWpdbx65TAwUv1rLyCF6fVjr9yELS75": {
+        [SolanaChains[chain].tokens.USDC]: {
             decimals: 6,
             symbol: "USDC"
         },
-        "Ar5yfeSyDNDHyq1GvtcrDKjNcoVTQiv7JaVvuMDbGNDT": {
+        [SolanaChains[chain].tokens.USDT]: {
             decimals: 6,
             symbol: "USDT"
         },
-        "So11111111111111111111111111111111111111112": {
+        [SolanaChains[chain].tokens.WSOL]: {
             decimals: 9,
             symbol: "SOL"
         }

@@ -7,7 +7,7 @@ import * as bolt11 from "bolt11";
 import SolToBTCLNPanel from "./SolToBTCLNPanel";
 import BTCLNtoSolPanel from "./BTCLNtoSolPanel";
 import { QrReader } from "react-qr-reader";
-import { ic_qr_code } from 'react-icons-kit/md/ic_qr_code';
+import { ic_qr_code_scanner } from 'react-icons-kit/md/ic_qr_code_scanner';
 import Icon from "react-icons-kit";
 import { SwapType } from "sollightning-sdk";
 import { FEConstants } from "../FEConstants";
@@ -38,18 +38,45 @@ function SwapTab(props) {
                                     console.log(result);
                                     let resultText = result.getText();
                                     console.log(resultText);
+                                    let lightning = false;
                                     if (resultText.startsWith("lightning:")) {
                                         resultText = resultText.substring(10);
                                     }
+                                    let _amount = null;
                                     if (resultText.startsWith("bitcoin:")) {
                                         resultText = resultText.substring(8);
                                         if (resultText.includes("?")) {
-                                            resultText = resultText.split("?")[0];
+                                            const arr = resultText.split("?");
+                                            resultText = arr[0];
+                                            const params = arr[1].split("&");
+                                            for (let param of params) {
+                                                const arr2 = param.split("=");
+                                                const key = arr2[0];
+                                                const value = decodeURIComponent(arr2[1]);
+                                                if (key === "amount") {
+                                                    _amount = value;
+                                                }
+                                            }
                                         }
+                                    }
+                                    if (_amount != null) {
+                                        setAmount(_amount);
                                     }
                                     setScanning(false);
                                     setAddress(resultText);
-                                    setVerifyAddress(true);
+                                    if (props.swapper.isValidLightningInvoice(resultText)) {
+                                        setKind("SoltoBTCLN");
+                                        setStep(1);
+                                    }
+                                    else if (props.swapper.isValidBitcoinAddress(resultText)) {
+                                        setKind("SoltoBTC");
+                                        if (_amount != null) {
+                                            setStep(1);
+                                        }
+                                    }
+                                    else {
+                                        setVerifyAddress(true);
+                                    }
                                 }
                             }, constraints: {
                                 facingMode: "environment"
@@ -103,7 +130,7 @@ function SwapTab(props) {
                             .dividedBy(FEConstants.satsPerBitcoin), max: (kind === "BTCLNtoSol" ? new BigNumber(props.swapper.getMaximum(SwapType.FROM_BTCLN).toString(10)) : new BigNumber(props.swapper.getMaximum(SwapType.FROM_BTC).toString(10)))
                             .dividedBy(FEConstants.satsPerBitcoin), step: new BigNumber("0.00000001"), onValidate: (val) => {
                             return val === "" ? "Amount cannot be empty" : null;
-                        } })) : kind === "SoltoBTCLN" ? (_jsx(ValidatedInput, { inputRef: sendToRef, className: "mb-4", type: "text", disabled: step !== 0, label: (_jsx("span", Object.assign({ className: "fw-semibold" }, { children: "Send to" }))), textEnd: (_jsx("a", Object.assign({ href: "javascript:void(0);", onClick: () => setScanning(true) }, { children: _jsx(Icon, { icon: ic_qr_code }) }))), size: "lg", value: address, onChange: setAddress, placeholder: "Enter destination address", onValidate: (val) => {
+                        } })) : kind === "SoltoBTCLN" ? (_jsx(ValidatedInput, { inputRef: sendToRef, className: "mb-4", type: "text", disabled: step !== 0, label: (_jsx("span", Object.assign({ className: "fw-semibold" }, { children: "Send to" }))), textEnd: (_jsx("a", Object.assign({ href: "javascript:void(0);", onClick: () => setScanning(true) }, { children: _jsx(Icon, { icon: ic_qr_code_scanner, size: 32 }) }))), size: "lg", value: address, onChange: setAddress, placeholder: "Enter destination address", onValidate: (val) => {
                             if (val === "")
                                 return "Cannot be empty";
                             try {
@@ -123,7 +150,7 @@ function SwapTab(props) {
                                 console.error(e);
                                 return "Invalid lightning invoice!";
                             }
-                        } })) : (_jsxs(_Fragment, { children: [_jsx(ValidatedInput, { inputRef: sendToRef, className: "mb-4", type: "text", disabled: step !== 0, label: (_jsx("span", Object.assign({ className: "fw-semibold" }, { children: "Send to" }))), textEnd: (_jsx("a", Object.assign({ href: "javascript:void(0);", onClick: () => setScanning(true) }, { children: _jsx(Icon, { icon: ic_qr_code }) }))), size: "lg", value: address, onChange: setAddress, placeholder: "Enter destination address", onValidate: (val) => {
+                        } })) : (_jsxs(_Fragment, { children: [_jsx(ValidatedInput, { inputRef: sendToRef, className: "mb-4", type: "text", disabled: step !== 0, label: (_jsx("span", Object.assign({ className: "fw-semibold" }, { children: "Send to" }))), textEnd: (_jsx("a", Object.assign({ href: "javascript:void(0);", onClick: () => setScanning(true) }, { children: _jsx(Icon, { icon: ic_qr_code_scanner, size: 32 }) }))), size: "lg", value: address, onChange: setAddress, placeholder: "Enter destination address", onValidate: (val) => {
                                     if (val === "")
                                         return "Cannot be empty";
                                     if (!props.swapper.isValidBitcoinAddress(val))

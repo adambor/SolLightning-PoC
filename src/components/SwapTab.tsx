@@ -8,7 +8,7 @@ import SolToBTCLNPanel from "./SolToBTCLNPanel";
 import BTCLNtoSolPanel from "./BTCLNtoSolPanel";
 import {AnchorProvider} from "@coral-xyz/anchor";
 import {QrReader} from "react-qr-reader";
-import {ic_qr_code} from 'react-icons-kit/md/ic_qr_code'
+import {ic_qr_code_scanner} from 'react-icons-kit/md/ic_qr_code_scanner';
 import Icon from "react-icons-kit";
 import {SolanaSwapper, SwapType} from "sollightning-sdk";
 import {FEConstants} from "../FEConstants";
@@ -61,18 +61,44 @@ function SwapTab(props: {
                                 console.log(result);
                                 let resultText = result.getText();
                                 console.log(resultText);
+                                let lightning: boolean = false;
                                 if(resultText.startsWith("lightning:")) {
                                     resultText = resultText.substring(10);
                                 }
+                                let _amount: string = null;
                                 if(resultText.startsWith("bitcoin:")) {
                                     resultText = resultText.substring(8);
                                     if(resultText.includes("?")) {
-                                        resultText = resultText.split("?")[0];
+                                        const arr = resultText.split("?");
+                                        resultText = arr[0];
+                                        const params = arr[1].split("&");
+                                        for(let param of params) {
+                                            const arr2 = param.split("=");
+                                            const key = arr2[0];
+                                            const value = decodeURIComponent(arr2[1]);
+                                            if(key==="amount") {
+                                                _amount = value;
+                                            }
+                                        }
                                     }
+                                }
+                                if(_amount!=null) {
+                                    setAmount(_amount);
                                 }
                                 setScanning(false);
                                 setAddress(resultText);
-                                setVerifyAddress(true);
+
+                                if(props.swapper.isValidLightningInvoice(resultText)) {
+                                    setKind("SoltoBTCLN");
+                                    setStep(1);
+                                } else if(props.swapper.isValidBitcoinAddress(resultText)) {
+                                    setKind("SoltoBTC");
+                                    if(_amount!=null) {
+                                        setStep(1);
+                                    }
+                                } else {
+                                    setVerifyAddress(true);
+                                }
                             }
                         }}
                         constraints={{
@@ -202,7 +228,7 @@ function SwapTab(props: {
                         )}
                         textEnd={(
                             <a href="javascript:void(0);" onClick={() => setScanning(true)}>
-                                <Icon icon={ic_qr_code}/>
+                                <Icon icon={ic_qr_code_scanner} size={32}/>
                             </a>
                         )}
                         size={"lg"}
@@ -241,7 +267,7 @@ function SwapTab(props: {
                             )}
                             textEnd={(
                                 <a href="javascript:void(0);" onClick={() => setScanning(true)}>
-                                    <Icon icon={ic_qr_code}/>
+                                    <Icon icon={ic_qr_code_scanner} size={32}/>
                                 </a>
                             )}
                             size={"lg"}

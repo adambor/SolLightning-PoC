@@ -8,7 +8,8 @@ import {Card} from "react-bootstrap";
 import {useConnection, useAnchorWallet, AnchorWallet} from "@solana/wallet-adapter-react";
 import {AnchorProvider} from "@coral-xyz/anchor";
 
-import {SolanaSwapper, IBTCxtoSolSwap, ISolToBTCxSwap, BTCLNtoSolSwap, BTCtoSolNewSwap, CoinGeckoSwapPrice} from "sollightning-sdk";
+import {SolanaSwapper, IBTCxtoSolSwap, ISolToBTCxSwap, BTCLNtoSolSwap, BTCtoSolNewSwap, CoinGeckoSwapPrice, SolanaChains,
+    BitcoinNetwork} from "sollightning-sdk";
 import * as BN from "bn.js";
 import {FEConstants} from "./FEConstants";
 
@@ -47,15 +48,26 @@ export default function WrappedApp() {
             try {
                 console.log("init start");
 
+                const coinsMap = CoinGeckoSwapPrice.createCoinsMap(
+                    FEConstants.wbtcToken.toBase58(),
+                    FEConstants.usdcToken.toBase58(),
+                    FEConstants.usdtToken.toBase58()
+                );
+
+                coinsMap[FEConstants.wsolToken.toBase58()] = {
+                    coinId: "solana",
+                    decimals: 9
+                };
+
                 const swapper = new SolanaSwapper(_provider, {
+                    //intermediaryUrl: "http://localhost:4000",
                     pricing: new CoinGeckoSwapPrice(
-                        new BN(2500),
-                        CoinGeckoSwapPrice.createCoinsMap(
-                            FEConstants.wbtcToken.toBase58(),
-                            FEConstants.usdcToken.toBase58(),
-                            FEConstants.usdtToken.toBase58()
-                        )
-                    )
+                        new BN(5000),
+                        coinsMap
+                    ),
+                    addresses: SolanaChains[FEConstants.chain].addresses,
+                    registryUrl: SolanaChains[FEConstants.chain].registryUrl,
+                    bitcoinNetwork: FEConstants.chain==="MAINNET" ? BitcoinNetwork.MAINNET : BitcoinNetwork.TESTNET
                 });
 
                 await swapper.init();
