@@ -6,11 +6,11 @@ import { Button, Card, Modal } from "react-bootstrap";
 import * as bolt11 from "bolt11";
 import SolToBTCLNPanel from "./SolToBTCLNPanel";
 import BTCLNtoSolPanel from "./BTCLNtoSolPanel";
-import { QrReader } from "react-qr-reader";
 import { ic_qr_code_scanner } from 'react-icons-kit/md/ic_qr_code_scanner';
 import Icon from "react-icons-kit";
 import { SwapType } from "sollightning-sdk";
 import { FEConstants } from "../FEConstants";
+import { QRScanner } from "./qr/QRScanner";
 function SwapTab(props) {
     const [amount, setAmount] = useState(null);
     const amountRef = useRef();
@@ -29,14 +29,14 @@ function SwapTab(props) {
         sendToRef.current.validate();
         setVerifyAddress(false);
     }, [verifyAddress]);
-    return (_jsxs(Card, Object.assign({ className: "p-3" }, { children: [_jsxs(Modal, Object.assign({ show: scanning, onHide: () => setScanning(false) }, { children: [_jsx(Modal.Header, Object.assign({ closeButton: true }, { children: _jsx(Modal.Title, { children: "Scan the lightning invoice" }) })), _jsx(Modal.Body, { children: _jsx(QrReader, { onResult: (result, error) => {
+    return (_jsxs(Card, Object.assign({ className: "p-3" }, { children: [_jsxs(Modal, Object.assign({ show: scanning, onHide: () => setScanning(false) }, { children: [_jsx(Modal.Header, Object.assign({ closeButton: true }, { children: _jsx(Modal.Title, { children: "Scan the lightning invoice" }) })), _jsx(Modal.Body, { children: _jsx(QRScanner, { onResult: (result, error) => {
                                 if (!!error) {
                                     //console.info(error);
                                     return;
                                 }
                                 if (result) {
                                     console.log(result);
-                                    let resultText = result.getText();
+                                    let resultText = result.data;
                                     console.log(resultText);
                                     let lightning = false;
                                     if (resultText.startsWith("lightning:")) {
@@ -78,9 +78,7 @@ function SwapTab(props) {
                                         setVerifyAddress(true);
                                     }
                                 }
-                            }, constraints: {
-                                facingMode: "environment"
-                            } }) }), _jsx(Modal.Footer, { children: _jsx(Button, Object.assign({ variant: "secondary", onClick: () => setScanning(false) }, { children: "Close" })) })] })), _jsx(Card.Title, { children: "Swap now" }), _jsxs(Card.Body, { children: [_jsx(ValidatedInput, { disabled: step !== 0, inputRef: tokenRef, className: "mb-4", type: "select", label: (_jsx("span", Object.assign({ className: "fw-semibold" }, { children: "Token" }))), size: "lg", value: token, onChange: (val) => {
+                            }, camera: "environment" }) }), _jsx(Modal.Footer, { children: _jsx(Button, Object.assign({ variant: "secondary", onClick: () => setScanning(false) }, { children: "Close" })) })] })), _jsx(Card.Title, { children: "Swap now" }), _jsxs(Card.Body, { children: [_jsx(ValidatedInput, { disabled: step !== 0, inputRef: tokenRef, className: "mb-4", type: "select", label: (_jsx("span", Object.assign({ className: "fw-semibold" }, { children: "Token" }))), size: "lg", value: token, onChange: (val) => {
                             console.log("Value selected: ", val);
                             setToken(val);
                         }, placeholder: "Enter amount you want to send", onValidate: (val) => {

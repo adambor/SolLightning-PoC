@@ -7,11 +7,11 @@ import * as bolt11 from "bolt11";
 import SolToBTCLNPanel from "./SolToBTCLNPanel";
 import BTCLNtoSolPanel from "./BTCLNtoSolPanel";
 import {AnchorProvider} from "@coral-xyz/anchor";
-import {QrReader} from "react-qr-reader";
 import {ic_qr_code_scanner} from 'react-icons-kit/md/ic_qr_code_scanner';
 import Icon from "react-icons-kit";
 import {SolanaSwapper, SwapType} from "sollightning-sdk";
 import {FEConstants} from "../FEConstants";
+import {QRScanner} from "./qr/QRScanner";
 
 function SwapTab(props: {
     signer: AnchorProvider,
@@ -51,7 +51,7 @@ function SwapTab(props: {
                     <Modal.Title>Scan the lightning invoice</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <QrReader
+                    <QRScanner
                         onResult={(result, error) => {
                             if (!!error) {
                                 //console.info(error);
@@ -59,7 +59,7 @@ function SwapTab(props: {
                             }
                             if(result) {
                                 console.log(result);
-                                let resultText = result.getText();
+                                let resultText = result.data;
                                 console.log(resultText);
                                 let lightning: boolean = false;
                                 if(resultText.startsWith("lightning:")) {
@@ -101,9 +101,7 @@ function SwapTab(props: {
                                 }
                             }
                         }}
-                        constraints={{
-                            facingMode: "environment"
-                        }}
+                        camera={"environment"}
                     />
                 </Modal.Body>
                 <Modal.Footer>
