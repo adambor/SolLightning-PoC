@@ -9,7 +9,6 @@ import {SolanaSwapper, SwapType, ISolToBTCxSwap, SolToBTCxSwapState} from "solli
 import {Keypair, PublicKey} from "@solana/web3.js";
 
 export function SoltoBTCLNRefund(props: {
-    signer: AnchorProvider,
     swap: ISolToBTCxSwap<any>
     onError: (string) => any,
     onSuccess: () => any,
@@ -23,12 +22,32 @@ export function SoltoBTCLNRefund(props: {
 
     const abortController = useRef<AbortController>(null);
 
+    const [expired, setExpired] = useState<boolean>(false);
+    const [currentTimestamp, setCurrentTimestamp] = useState<number>(Date.now());
+    useEffect(() => {
+        let timer;
+        timer = setInterval(() => {
+            const now = Date.now();
+            if(props.swap.getState()===SolToBTCxSwapState.CREATED) {
+                if(props.swap.getExpiry()<now && !sendingTx) {
+                    props.onError("Swap expired!");
+                    if(timer!=null) clearInterval(timer);
+                    setExpired(true);
+                    timer = null;
+                    return;
+                }
+            }
+            setCurrentTimestamp(now);
+        }, 500);
+
+        return () => {
+            if(timer!=null) clearInterval(timer);
+        }
+    }, [props.swap]);
+
     useEffect(() => {
         abortController.current = new AbortController();
         if(props.swap==null) {
-            return;
-        }
-        if(props.signer==null) {
             return;
         }
 
@@ -62,7 +81,7 @@ export function SoltoBTCLNRefund(props: {
             props.swap.events.removeListener("swapState", listener);
             abortController.current.abort();
         };
-    }, [props.swap, props.signer]);
+    }, [props.swap]);
 
     const refund = async() => {
         setSendingTx(true);
@@ -115,7 +134,12 @@ export function SoltoBTCLNRefund(props: {
 
             {state===SolToBTCxSwapState.CREATED ? (
                 <>
-                    <Button disabled={sendingTx} onClick={pay}>
+                    {!sendingTx ? (
+                        <>
+                            <b>Expires in: </b>{props.swap==null ? "0" : Math.floor((props.swap.getExpiry()-currentTimestamp)/1000)} seconds
+                        </>
+                    ) : ""}
+                    <Button disabled={sendingTx || expired} onClick={pay}>
                         Pay {props.swap==null ? "" : new BigNumber(props.swap.getInAmount().toString()).dividedBy(tokenDivisor).toFixed(tokenDecimals)} {tokenSymbol}
                     </Button>
                 </>
@@ -163,7 +187,7 @@ function SolToBTCLNPanel(props: {
     token: string,
     bolt11PayReq: string,
     amount?: BigNumber,
-    signer: AnchorProvider,
+    comment?: string,
     swapper: SolanaSwapper,
     swapType: SwapType.TO_BTC | SwapType.TO_BTCLN
 }) {
@@ -174,7 +198,7 @@ function SolToBTCLNPanel(props: {
     const [swap, setSwap] = useState<ISolToBTCxSwap<any>>(null);
 
     useEffect(() => {
-        if(props.signer==null) {
+        if(props.swapper==null) {
             return;
         }
 
@@ -186,7 +210,11 @@ function SolToBTCLNPanel(props: {
             try {
                 let swap;
                 if(props.swapType===SwapType.TO_BTCLN) {
-                    swap = await props.swapper.createSolToBTCLNSwap(new PublicKey(props.token), props.bolt11PayReq, 5*24*3600);
+                    if(props.swapper.isValidLNURL(props.bolt11PayReq)) {
+                        swap = await props.swapper.createSolToBTCLNSwapViaLNURL(new PublicKey(props.token), props.bolt11PayReq, new BN(props.amount.toString(10)), props.comment, 5*24*3600);
+                    } else {
+                        swap = await props.swapper.createSolToBTCLNSwap(new PublicKey(props.token), props.bolt11PayReq, 5*24*3600);
+                    }
                 }
                 if(props.swapType===SwapType.TO_BTC) {
                     swap = await props.swapper.createSolToBTCSwap(new PublicKey(props.token), props.bolt11PayReq, new BN(props.amount.toString(10)));
@@ -204,7 +232,7 @@ function SolToBTCLNPanel(props: {
             setLoading(false);
         })();
 
-    }, [props.signer, props.bolt11PayReq]);
+    }, [props.swapper, props.amount, props.bolt11PayReq]);
 
     return (
         <div className="d-flex flex-column justify-content-center align-items-center">
@@ -222,7 +250,7 @@ function SolToBTCLNPanel(props: {
             ) : ""}
 
             {swap!=null ? (
-                <SoltoBTCLNRefund signer={props.signer} swap={swap} onError={(e) => {
+                <SoltoBTCLNRefund swap={swap} onError={(e) => {
                     setError(e);
                 }} onSuccess={() => {
 

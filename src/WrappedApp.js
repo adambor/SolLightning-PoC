@@ -26,6 +26,17 @@ export default function WrappedApp() {
             setProvider(null);
             return;
         }
+        //
+        // const conn = new Connection(RPC_ENDPOINT, {
+        //     commitment: "confirmed",
+        //     // fetch: (input: RequestInfo, init?: RequestInit) => {
+        //     //     init.cache = "force-cache";
+        //     //     init.headers = {};
+        //     //     init.headers["Content-Type"] = "application/json";
+        //     //     init.headers["Cache-Control"] = "max-age=600";
+        //     //     return fetch(input, init);
+        //     // }
+        // });
         const _provider = new AnchorProvider(connection, wallet, { preflightCommitment: "processed" });
         console.log("New signer set: ", wallet.publicKey);
         setProvider(_provider);
@@ -58,7 +69,7 @@ export default function WrappedApp() {
     }, [wallet]);
     return (_jsx(Card, Object.assign({ bg: "light" }, { children: _jsx(Card.Body, { children: swapper != null ? (_jsxs(_Fragment, { children: [claimableBTCLNtoEVM != null && claimableBTCLNtoEVM.length > 0 ? (_jsxs(Card, Object.assign({ className: "p-3" }, { children: [_jsxs(Card.Title, { children: ["Incomplete swaps (BTCLN-", '>', "Solana)"] }), _jsx(Card.Body, { children: claimableBTCLNtoEVM.map((e, index) => {
                                     if (e instanceof BTCLNtoSolSwap) {
-                                        return (_jsx(BTCLNtoSolClaim, { signer: provider, swap: e, onError: setError, onSuccess: () => {
+                                        return (_jsx(BTCLNtoSolClaim, { swap: e, onError: setError, onSuccess: () => {
                                                 setClaimableBTCLNtoEVM(prevState => {
                                                     const cpy = [...prevState];
                                                     cpy.splice(index, 1);
@@ -67,7 +78,7 @@ export default function WrappedApp() {
                                             } }, index));
                                     }
                                     if (e instanceof BTCtoSolNewSwap) {
-                                        return (_jsx(BTCtoSolClaim, { signer: provider, swap: e, onError: setError, onSuccess: () => {
+                                        return (_jsx(BTCtoSolClaim, { swap: e, onError: setError, onSuccess: () => {
                                                 setClaimableBTCLNtoEVM(prevState => {
                                                     const cpy = [...prevState];
                                                     cpy.splice(index, 1);
@@ -76,7 +87,7 @@ export default function WrappedApp() {
                                             } }, index));
                                     }
                                 }) })] }))) : "", refundableEVMtoBTCLN != null && refundableEVMtoBTCLN.length > 0 ? (_jsxs(Card, Object.assign({ className: "p-3" }, { children: [_jsxs(Card.Title, { children: ["Incomplete swaps (Solana-", '>', "BTCLN)"] }), _jsx(Card.Body, { children: refundableEVMtoBTCLN.map((e, index) => {
-                                    return (_jsx(SoltoBTCLNRefund, { signer: provider, swap: e, onError: setError, onSuccess: () => {
+                                    return (_jsx(SoltoBTCLNRefund, { swap: e, onError: setError, onSuccess: () => {
                                             setRefundableEVMtoBTCLN(prevState => {
                                                 const cpy = [...prevState];
                                                 cpy.splice(index, 1);
@@ -89,5 +100,5 @@ export default function WrappedApp() {
                                                 return cpy;
                                             });
                                         } }, index));
-                                }) })] }))) : "", _jsx(SwapTab, { signer: provider, swapper: swapper })] })) : "" }) })));
+                                }) })] }))) : "", _jsx(SwapTab, { swapper: swapper })] })) : "" }) })));
 }

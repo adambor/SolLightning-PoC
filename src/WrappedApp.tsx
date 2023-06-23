@@ -36,6 +36,17 @@ export default function WrappedApp() {
             setProvider(null);
             return;
         }
+        //
+        // const conn = new Connection(RPC_ENDPOINT, {
+        //     commitment: "confirmed",
+        //     // fetch: (input: RequestInfo, init?: RequestInit) => {
+        //     //     init.cache = "force-cache";
+        //     //     init.headers = {};
+        //     //     init.headers["Content-Type"] = "application/json";
+        //     //     init.headers["Cache-Control"] = "max-age=600";
+        //     //     return fetch(input, init);
+        //     // }
+        // });
 
         const _provider = new AnchorProvider(connection, wallet, {preflightCommitment: "processed"});
 
@@ -101,7 +112,7 @@ export default function WrappedApp() {
                                     {claimableBTCLNtoEVM.map((e,index) => {
                                         if(e instanceof BTCLNtoSolSwap) {
                                             return (
-                                                <BTCLNtoSolClaim key={index} signer={provider} swap={e} onError={setError} onSuccess={() => {
+                                                <BTCLNtoSolClaim key={index} swap={e} onError={setError} onSuccess={() => {
                                                     setClaimableBTCLNtoEVM(prevState => {
                                                         const cpy = [...prevState];
                                                         cpy.splice(index, 1);
@@ -112,7 +123,7 @@ export default function WrappedApp() {
                                         }
                                         if(e instanceof BTCtoSolNewSwap) {
                                             return (
-                                                <BTCtoSolClaim key={index} signer={provider} swap={e} onError={setError} onSuccess={() => {
+                                                <BTCtoSolClaim key={index} swap={e} onError={setError} onSuccess={() => {
                                                     setClaimableBTCLNtoEVM(prevState => {
                                                         const cpy = [...prevState];
                                                         cpy.splice(index, 1);
@@ -131,7 +142,7 @@ export default function WrappedApp() {
                                 <Card.Body>
                                     {refundableEVMtoBTCLN.map((e,index) => {
                                         return (
-                                            <SoltoBTCLNRefund key={index} signer={provider} swap={e} onError={setError} onSuccess={() => {
+                                            <SoltoBTCLNRefund key={index} swap={e} onError={setError} onSuccess={() => {
                                                 setRefundableEVMtoBTCLN(prevState => {
                                                     const cpy = [...prevState];
                                                     cpy.splice(index, 1);
@@ -149,7 +160,7 @@ export default function WrappedApp() {
                                 </Card.Body>
                             </Card>
                         ) : ""}
-                        <SwapTab signer={provider} swapper={swapper}/>
+                        <SwapTab swapper={swapper}/>
                     </>
                 ) : ""}
             </Card.Body>
