@@ -166,7 +166,9 @@ export function SoltoBTCLNRefund(props: {
                     )}
                 </>
             ) : state===SolToBTCxSwapState.CLAIMED ? (
-                <Alert variant="success">
+                <Alert variant="success" style={{
+                    maxWidth: "400px"
+                }}>
                     Swap successful ({props.swap.getTxId()})
                 </Alert>
             ) : state===SolToBTCxSwapState.REFUNDED ? (

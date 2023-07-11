@@ -19,7 +19,7 @@ function SwapTab(props) {
     const amountRef = useRef();
     const [kind, setKind] = useState("SoltoBTCLN");
     const kindRef = useRef();
-    const [token, setToken] = useState(FEConstants.wbtcToken.toBase58());
+    const [token, setToken] = useState(FEConstants.usdcToken.toBase58());
     const tokenRef = useRef();
     const [address, setAddress] = useState(null);
     const [addressError, setAddressError] = useState(null);
@@ -116,20 +116,20 @@ function SwapTab(props) {
                         }, placeholder: "Enter amount you want to send", onValidate: (val) => {
                             return null;
                         }, options: [
-                            {
-                                value: "WBTC",
-                                key: FEConstants.wbtcToken.toBase58()
-                            },
+                            // {
+                            //     value: "WBTC",
+                            //     key: FEConstants.wbtcToken.toBase58()
+                            // },
                             {
                                 value: "USDC",
                                 key: FEConstants.usdcToken.toBase58()
                             },
+                            // {
+                            //     value: "USDT",
+                            //     key: FEConstants.usdtToken.toBase58()
+                            // },
                             {
-                                value: "USDT",
-                                key: FEConstants.usdtToken.toBase58()
-                            },
-                            {
-                                value: "WSOL",
+                                value: "SOL",
                                 key: FEConstants.wsolToken.toBase58()
                             }
                         ] }), _jsx(ValidatedInput, { disabled: step !== 0, inputRef: kindRef, className: "mb-4", type: "select", label: (_jsx("span", Object.assign({ className: "fw-semibold" }, { children: "Type" }))), size: "lg", value: "" + kind, onChange: (val) => {
@@ -144,22 +144,22 @@ function SwapTab(props) {
                             return null;
                         }, options: [
                             {
-                                value: "BTC-LN -> Solana",
-                                key: "BTCLNtoSol"
-                            },
-                            {
-                                value: "BTC -> Solana",
-                                key: "BTCtoSol"
-                            },
-                            {
-                                value: "Solana -> BTC-LN",
+                                value: "Solana -> Bitcoin Lightning",
                                 key: "SoltoBTCLN"
                             },
                             {
-                                value: "Solana -> BTC",
+                                value: "Bitcoin Lightning -> Solana",
+                                key: "BTCLNtoSol"
+                            },
+                            {
+                                value: "Solana -> Bitcoin on-chain",
                                 key: "SoltoBTC"
+                            },
+                            {
+                                value: "Bitcoin on-chain -> Solana",
+                                key: "BTCtoSol"
                             }
-                        ] }), kind === "BTCLNtoSol" || kind === "BTCtoSol" ? (_jsxs(_Fragment, { children: [_jsx(ValidatedInput, { disabled: step !== 0 || (kind === "BTCLNtoSol" && lnurlState != null && lnurlState.max.eq(lnurlState.min)), inputRef: amountRef, className: "mb-4 strip-group-text", type: "number", value: amount, size: "lg", label: (_jsx("span", Object.assign({ className: "fw-semibold" }, { children: "Enter amount" }))), onChange: (val) => {
+                        ] }), kind === "BTCLNtoSol" || kind === "BTCtoSol" ? (_jsxs(_Fragment, { children: [_jsx(ValidatedInput, { disabled: step !== 0 || (kind === "BTCLNtoSol" && lnurlState != null && lnurlState.max.eq(lnurlState.min)), inputRef: amountRef, className: "mb-4 strip-group-text", type: "number", value: amount, size: "lg", label: (_jsx("span", Object.assign({ className: "fw-semibold" }, { children: "Enter amount (in BTC)" }))), onChange: (val) => {
                                     setAmount(val);
                                 }, textEnd: (kind === "BTCLNtoSol" && lnurlState != null && !lnurlState.max.eq(lnurlState.min)) ? (_jsx("a", Object.assign({ href: "#", onClick: (event) => {
                                         event.preventDefault();
@@ -295,7 +295,7 @@ function SwapTab(props) {
                                         console.error(e);
                                         return "Invalid lightning invoice!";
                                     }
-                                } }), (lnurlState === null || lnurlState === void 0 ? void 0 : lnurlState.shortDescription) ? (_jsxs(Alert, Object.assign({ variant: "success" }, { children: [lnurlState.icon ? (_jsx("img", { src: lnurlState.icon })) : "", _jsx("span", { children: lnurlState.shortDescription })] }))) : "", lnurlState != null ? (_jsx(ValidatedInput, { disabled: step !== 0 || lnurlState.min.eq(lnurlState.max), inputRef: amountRef, className: "mt-1 strip-group-text mb-3", type: "number", value: amount, size: "lg", label: (_jsx("span", Object.assign({ className: "fw-semibold" }, { children: "Enter amount" }))), onChange: (val) => {
+                                } }), (lnurlState === null || lnurlState === void 0 ? void 0 : lnurlState.shortDescription) ? (_jsxs(Alert, Object.assign({ variant: "success" }, { children: [lnurlState.icon ? (_jsx("img", { src: lnurlState.icon })) : "", _jsx("span", { children: lnurlState.shortDescription })] }))) : "", lnurlState != null ? (_jsx(ValidatedInput, { disabled: step !== 0 || lnurlState.min.eq(lnurlState.max), inputRef: amountRef, className: "mt-1 strip-group-text mb-3", type: "number", value: amount, size: "lg", label: (_jsx("span", Object.assign({ className: "fw-semibold" }, { children: "Enter amount (in BTC)" }))), onChange: (val) => {
                                     setAmount(val);
                                 }, min: new BigNumber(BN.max(props.swapper.getMinimum(SwapType.TO_BTCLN), lnurlState.min).toString(10)).dividedBy(FEConstants.satsPerBitcoin), max: new BigNumber(BN.min(props.swapper.getMaximum(SwapType.TO_BTCLN), lnurlState.max).toString(10)).dividedBy(FEConstants.satsPerBitcoin), step: new BigNumber("0.00000001"), onValidate: (val) => {
                                     return val === "" ? "Amount cannot be empty" : null;
@@ -310,7 +310,7 @@ function SwapTab(props) {
                                         return "Cannot be empty";
                                     if (!props.swapper.isValidBitcoinAddress(val))
                                         return "Invalid bitcoin address";
-                                } }), _jsx(ValidatedInput, { disabled: step !== 0, inputRef: amountRef, className: "mt-1 strip-group-text", type: "number", value: amount, size: "lg", label: (_jsx("span", Object.assign({ className: "fw-semibold" }, { children: "Enter amount" }))), onChange: (val) => {
+                                } }), _jsx(ValidatedInput, { disabled: step !== 0, inputRef: amountRef, className: "mt-1 strip-group-text", type: "number", value: amount, size: "lg", label: (_jsx("span", Object.assign({ className: "fw-semibold" }, { children: "Enter amount (in BTC)" }))), onChange: (val) => {
                                     setAmount(val);
                                 }, min: new BigNumber(props.swapper.getMinimum(SwapType.TO_BTC).toString(10)).dividedBy(FEConstants.satsPerBitcoin), max: new BigNumber(props.swapper.getMaximum(SwapType.TO_BTC).toString(10)).dividedBy(FEConstants.satsPerBitcoin), step: new BigNumber("0.00000001"), onValidate: (val) => {
                                     return val === "" ? "Amount cannot be empty" : null;

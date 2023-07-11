@@ -27,7 +27,7 @@ function SwapTab(props: {
     const [kind, setKind] = useState<"BTCLNtoSol" | "SoltoBTCLN" | "SoltoBTC" | "BTCtoSol">("SoltoBTCLN");
     const kindRef = useRef<ValidatedInputRef>();
 
-    const [token, setToken] = useState<string>(FEConstants.wbtcToken.toBase58());
+    const [token, setToken] = useState<string>(FEConstants.usdcToken.toBase58());
     const tokenRef = useRef<ValidatedInputRef>();
 
     const [address, setAddress] = useState<string>(null);
@@ -167,20 +167,20 @@ function SwapTab(props: {
                     }}
                     options={
                         [
-                            {
-                                value: "WBTC",
-                                key: FEConstants.wbtcToken.toBase58()
-                            },
+                            // {
+                            //     value: "WBTC",
+                            //     key: FEConstants.wbtcToken.toBase58()
+                            // },
                             {
                                 value: "USDC",
                                 key: FEConstants.usdcToken.toBase58()
                             },
+                            // {
+                            //     value: "USDT",
+                            //     key: FEConstants.usdtToken.toBase58()
+                            // },
                             {
-                                value: "USDT",
-                                key: FEConstants.usdtToken.toBase58()
-                            },
-                            {
-                                value: "WSOL",
+                                value: "SOL",
                                 key: FEConstants.wsolToken.toBase58()
                             }
                         ]
@@ -213,20 +213,20 @@ function SwapTab(props: {
                     options={
                         [
                             {
-                                value: "BTC-LN -> Solana",
-                                key: "BTCLNtoSol"
-                            },
-                            {
-                                value: "BTC -> Solana",
-                                key: "BTCtoSol"
-                            },
-                            {
-                                value: "Solana -> BTC-LN",
+                                value: "Solana -> Bitcoin Lightning",
                                 key: "SoltoBTCLN"
                             },
                             {
-                                value: "Solana -> BTC",
+                                value: "Bitcoin Lightning -> Solana",
+                                key: "BTCLNtoSol"
+                            },
+                            {
+                                value: "Solana -> Bitcoin on-chain",
                                 key: "SoltoBTC"
+                            },
+                            {
+                                value: "Bitcoin on-chain -> Solana",
+                                key: "BTCtoSol"
                             }
                         ]
                     }
@@ -240,7 +240,7 @@ function SwapTab(props: {
                             type="number"
                             value={amount}
                             size={"lg"}
-                            label={(<span className="fw-semibold">Enter amount</span>)}
+                            label={(<span className="fw-semibold">Enter amount (in BTC)</span>)}
                             onChange={(val) => {
                                 setAmount(val);
                             }}
@@ -461,7 +461,7 @@ function SwapTab(props: {
                                 type="number"
                                 value={amount}
                                 size={"lg"}
-                                label={(<span className="fw-semibold">Enter amount</span>)}
+                                label={(<span className="fw-semibold">Enter amount (in BTC)</span>)}
                                 onChange={(val) => {
                                     setAmount(val);
                                 }}
@@ -526,7 +526,7 @@ function SwapTab(props: {
                             type="number"
                             value={amount}
                             size={"lg"}
-                            label={(<span className="fw-semibold">Enter amount</span>)}
+                            label={(<span className="fw-semibold">Enter amount (in BTC)</span>)}
                             onChange={(val) => {
                                 setAmount(val);
                             }}

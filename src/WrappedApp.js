@@ -7,8 +7,7 @@ import { useState } from "react";
 import { Card } from "react-bootstrap";
 import { useConnection, useAnchorWallet } from "@solana/wallet-adapter-react";
 import { AnchorProvider } from "@coral-xyz/anchor";
-import { SolanaSwapper, BTCLNtoSolSwap, BTCtoSolNewSwap, CoinGeckoSwapPrice, SolanaChains, BitcoinNetwork } from "sollightning-sdk";
-import * as BN from "bn.js";
+import { SolanaSwapper, BTCLNtoSolSwap, BTCtoSolNewSwap, createSwapperOptions } from "sollightning-sdk";
 import { FEConstants } from "./FEConstants";
 export default function WrappedApp() {
     const wallet = useAnchorWallet();
@@ -43,18 +42,7 @@ export default function WrappedApp() {
         (async () => {
             try {
                 console.log("init start");
-                const coinsMap = CoinGeckoSwapPrice.createCoinsMap(FEConstants.wbtcToken.toBase58(), FEConstants.usdcToken.toBase58(), FEConstants.usdtToken.toBase58());
-                coinsMap[FEConstants.wsolToken.toBase58()] = {
-                    coinId: "solana",
-                    decimals: 9
-                };
-                const swapper = new SolanaSwapper(_provider, {
-                    //intermediaryUrl: "http://localhost:4000",
-                    pricing: new CoinGeckoSwapPrice(new BN(5000), coinsMap),
-                    addresses: SolanaChains[FEConstants.chain].addresses,
-                    registryUrl: SolanaChains[FEConstants.chain].registryUrl,
-                    bitcoinNetwork: FEConstants.chain === "MAINNET" ? BitcoinNetwork.MAINNET : BitcoinNetwork.TESTNET
-                });
+                const swapper = new SolanaSwapper(_provider, createSwapperOptions(FEConstants.chain));
                 await swapper.init();
                 console.log("Swapper initialized, getting claimable swaps...");
                 setClaimableBTCLNtoEVM(await swapper.getClaimableSwaps());
@@ -67,7 +55,7 @@ export default function WrappedApp() {
             }
         })();
     }, [wallet]);
-    return (_jsx(Card, Object.assign({ bg: "light" }, { children: _jsx(Card.Body, { children: swapper != null ? (_jsxs(_Fragment, { children: [claimableBTCLNtoEVM != null && claimableBTCLNtoEVM.length > 0 ? (_jsxs(Card, Object.assign({ className: "p-3" }, { children: [_jsxs(Card.Title, { children: ["Incomplete swaps (BTCLN-", '>', "Solana)"] }), _jsx(Card.Body, { children: claimableBTCLNtoEVM.map((e, index) => {
+    return (_jsx(Card, Object.assign({ bg: "light" }, { children: _jsx(Card.Body, { children: swapper != null ? (_jsxs(_Fragment, { children: [claimableBTCLNtoEVM != null && claimableBTCLNtoEVM.length > 0 ? (_jsxs(Card, Object.assign({ className: "p-3" }, { children: [_jsxs(Card.Title, { children: ["Incomplete swaps (BTC-", '>', "Solana)"] }), _jsx(Card.Body, { children: claimableBTCLNtoEVM.map((e, index) => {
                                     if (e instanceof BTCLNtoSolSwap) {
                                         return (_jsx(BTCLNtoSolClaim, { swap: e, onError: setError, onSuccess: () => {
                                                 setClaimableBTCLNtoEVM(prevState => {
@@ -86,7 +74,7 @@ export default function WrappedApp() {
                                                 });
                                             } }, index));
                                     }
-                                }) })] }))) : "", refundableEVMtoBTCLN != null && refundableEVMtoBTCLN.length > 0 ? (_jsxs(Card, Object.assign({ className: "p-3" }, { children: [_jsxs(Card.Title, { children: ["Incomplete swaps (Solana-", '>', "BTCLN)"] }), _jsx(Card.Body, { children: refundableEVMtoBTCLN.map((e, index) => {
+                                }) })] }))) : "", refundableEVMtoBTCLN != null && refundableEVMtoBTCLN.length > 0 ? (_jsxs(Card, Object.assign({ className: "p-3" }, { children: [_jsxs(Card.Title, { children: ["Incomplete swaps (Solana-", '>', "BTC)"] }), _jsx(Card.Body, { children: refundableEVMtoBTCLN.map((e, index) => {
                                     return (_jsx(SoltoBTCLNRefund, { swap: e, onError: setError, onSuccess: () => {
                                             setRefundableEVMtoBTCLN(prevState => {
                                                 const cpy = [...prevState];

@@ -166,9 +166,15 @@ export function BTCLNtoSolClaim(props: {
                 </>
             )) : ""}
 
-            <b>Security deposit: </b>
-            {props.swap==null ? "0."+"0".repeat(nativeTokenDecimals) : new BigNumber(props.swap.getSecurityDeposit().toString()).dividedBy(nativeTokenDivisor).toFixed(nativeTokenDecimals)} {nativeTokenSymbol}
-            <small>(Returned back to you upon successful swap)</small>
+            <Alert variant="success" style={{
+                maxWidth: "400px"
+            }}>
+                Send the lightning network payment first, then finish the swap by claiming it here (the claim button will appear when the payment arrives).
+            </Alert>
+
+            {/*<b>Security deposit: </b>*/}
+            {/*{props.swap==null ? "0."+"0".repeat(nativeTokenDecimals) : new BigNumber(props.swap.getSecurityDeposit().toString()).dividedBy(nativeTokenDivisor).toFixed(nativeTokenDecimals)} {nativeTokenSymbol}*/}
+            {/*<small>(Returned back to you upon successful swap)</small>*/}
 
             <b>Amount: </b>{props.swap==null ? "0."+"0".repeat(tokenDecimals) : new BigNumber(props.swap.getOutAmountWithoutFee().toString()).dividedBy(tokenDivisor).toFixed(tokenDecimals)} {tokenSymbol}
             <b>Fee: </b>{props.swap==null ? "0."+"0".repeat(tokenDecimals) : new BigNumber(props.swap.getFee().toString()).dividedBy(tokenDivisor).toFixed(tokenDecimals)} {tokenSymbol}
@@ -403,8 +409,13 @@ export function BTCtoSolClaim(props: {
                     ) : (
                         <>
                             <b>Waiting for payment...</b>
-                            <p>Make sure you send the transaction in time and with high enough fee!</p>
-                            <p>Seconds remaining: {secondsRemaining}</p>
+
+                            <Alert variant="success" style={{
+                                maxWidth: "400px"
+                            }}>
+                                <p>Make sure you send the transaction with the <b>EXACT</b> amount, in time and with high enough fee!</p>
+                                <p>Seconds remaining: {secondsRemaining}</p>
+                            </Alert>
                         </>
                     )}
                 </div>
@@ -481,7 +492,7 @@ function BTCLNtoSolPanel(props: {
                     if(props.swapType===SwapType.FROM_BTCLN) {
                         if(props.lnurl!=null && props.lnurl!=="") {
                             console.log("Creating swap with lnurl: ", props.lnurl);
-                            createdSwap = await props.swapper.createBTCLNtoSolSwapViaLNURL(props.lnurl, new PublicKey(props.token), new BN(props.amount.toString(10)));
+                            createdSwap = await props.swapper.createBTCLNtoSolSwapViaLNURL(new PublicKey(props.token), props.lnurl, new BN(props.amount.toString(10)));
                         } else {
                             createdSwap = await props.swapper.createBTCLNtoSolSwap(new PublicKey(props.token), new BN(props.amount.toString(10)));
                         }
