@@ -13,6 +13,7 @@ import { FEConstants } from "../FEConstants";
 import { QRScanner } from "./qr/QRScanner";
 import * as BN from "bn.js";
 function SwapTab(props) {
+    const [debug, setDebug] = useState(null);
     const [comment, setComment] = useState(null);
     const commentRef = useRef();
     const [amount, setAmount] = useState(null);
@@ -44,7 +45,9 @@ function SwapTab(props) {
         amountRef.current.validate();
         setVerifyAmount(false);
     }, [verifyAmount]);
-    return (_jsxs(Card, Object.assign({ className: "p-3" }, { children: [_jsxs(Modal, Object.assign({ show: scanning, onHide: () => {
+    return (_jsxs(Card, Object.assign({ className: "p-3" }, { children: [_jsxs(Modal, Object.assign({ show: debug != null, onHide: () => {
+                    setDebug(null);
+                } }, { children: [_jsx(Modal.Header, Object.assign({ closeButton: true }, { children: _jsx(Modal.Title, { children: "Debug output" }) })), _jsx(Modal.Body, { children: debug })] })), _jsxs(Modal, Object.assign({ show: scanning, onHide: () => {
                     setScanning(false);
                     scanningRef.current = false;
                 } }, { children: [_jsx(Modal.Header, Object.assign({ closeButton: true }, { children: _jsx(Modal.Title, { children: "Scan the lightning invoice" }) })), _jsx(Modal.Body, { children: _jsx(QRScanner, { onResult: (result, error) => {

@@ -5,11 +5,11 @@ import * as React from "react";
 import {Alert, Button, Spinner} from "react-bootstrap";
 import {AnchorProvider, BN} from "@coral-xyz/anchor";
 import {FEConstants} from "../FEConstants";
-import {SolanaSwapper, SwapType, ISolToBTCxSwap, SolToBTCxSwapState} from "sollightning-sdk";
+import {SolanaSwapper, SwapType, IToBTCSwap, ToBTCSwapState} from "sollightning-sdk";
 import {Keypair, PublicKey} from "@solana/web3.js";
 
 export function SoltoBTCLNRefund(props: {
-    swap: ISolToBTCxSwap<any>
+    swap: IToBTCSwap<any>
     onError: (string) => any,
     onSuccess: () => any,
     onRefunded: () => any
@@ -28,7 +28,7 @@ export function SoltoBTCLNRefund(props: {
         let timer;
         timer = setInterval(() => {
             const now = Date.now();
-            if(props.swap.getState()===SolToBTCxSwapState.CREATED) {
+            if(props.swap.getState()===ToBTCSwapState.CREATED) {
                 if(props.swap.getExpiry()<now && !sendingTx) {
                     props.onError("Swap expired!");
                     if(timer!=null) clearInterval(timer);
@@ -53,7 +53,7 @@ export function SoltoBTCLNRefund(props: {
 
         const listener = (swap) => {
             setState(swap.state);
-            if(swap.state===SolToBTCxSwapState.CREATED) {
+            if(swap.state===ToBTCSwapState.CREATED) {
                 setLoading(true);
                 (async() => {
 
@@ -90,6 +90,7 @@ export function SoltoBTCLNRefund(props: {
             const receipt = await props.swap.refund();
             props.onRefunded();
         } catch (e) {
+            console.error(e);
             if(typeof(e)==="string") {
                 props.onError(e);
             } else {
@@ -132,7 +133,7 @@ export function SoltoBTCLNRefund(props: {
             <b>Fee: </b>{props.swap==null ? "0."+"0".repeat(tokenDecimals) : new BigNumber(props.swap.getFee().toString()).dividedBy(tokenDivisor).toFixed(tokenDecimals)} {tokenSymbol}
             <b>Total: </b>{props.swap==null ? "0."+"0".repeat(tokenDecimals) : new BigNumber(props.swap.getInAmount().toString()).dividedBy(tokenDivisor).toFixed(tokenDecimals)} {tokenSymbol}
 
-            {state===SolToBTCxSwapState.CREATED ? (
+            {state===ToBTCSwapState.CREATED ? (
                 <>
                     {!sendingTx ? (
                         <>
@@ -143,7 +144,7 @@ export function SoltoBTCLNRefund(props: {
                         Pay {props.swap==null ? "" : new BigNumber(props.swap.getInAmount().toString()).dividedBy(tokenDivisor).toFixed(tokenDecimals)} {tokenSymbol}
                     </Button>
                 </>
-            ) : state===SolToBTCxSwapState.REFUNDABLE ? (
+            ) : state===ToBTCSwapState.REFUNDABLE ? (
                 <>
                     <Alert variant={"error"}>
                         Error occurred when trying to process the swap (recipient unreachable?)
@@ -152,7 +153,7 @@ export function SoltoBTCLNRefund(props: {
                         Refund {props.swap==null ? "" : new BigNumber(props.swap.getInAmount().toString()).dividedBy(tokenDivisor).toFixed(tokenDecimals)} {tokenSymbol}
                     </Button>
                 </>
-            ) : state===SolToBTCxSwapState.COMMITED ? (
+            ) : state===ToBTCSwapState.COMMITED ? (
                 <>
                     {props.swap.getTxId()!=null ? (
                         <Alert variant="success">
@@ -165,17 +166,17 @@ export function SoltoBTCLNRefund(props: {
                         </>
                     )}
                 </>
-            ) : state===SolToBTCxSwapState.CLAIMED ? (
+            ) : state===ToBTCSwapState.CLAIMED ? (
                 <Alert variant="success" style={{
                     maxWidth: "400px"
                 }}>
                     Swap successful ({props.swap.getTxId()})
                 </Alert>
-            ) : state===SolToBTCxSwapState.REFUNDED ? (
+            ) : state===ToBTCSwapState.REFUNDED ? (
                 <Alert variant="danger">
                     Swap failed (Money refunded)
                 </Alert>
-            ) : state===SolToBTCxSwapState.FAILED ? (
+            ) : state===ToBTCSwapState.FAILED ? (
                 <Alert variant="danger">
                     Swap failed
                 </Alert>
@@ -197,7 +198,7 @@ function SolToBTCLNPanel(props: {
     const [loading, setLoading] = useState<boolean>(null);
     const [error, setError] = useState<string>(null);
 
-    const [swap, setSwap] = useState<ISolToBTCxSwap<any>>(null);
+    const [swap, setSwap] = useState<IToBTCSwap<any>>(null);
 
     useEffect(() => {
         if(props.swapper==null) {
@@ -213,13 +214,13 @@ function SolToBTCLNPanel(props: {
                 let swap;
                 if(props.swapType===SwapType.TO_BTCLN) {
                     if(props.swapper.isValidLNURL(props.bolt11PayReq)) {
-                        swap = await props.swapper.createSolToBTCLNSwapViaLNURL(new PublicKey(props.token), props.bolt11PayReq, new BN(props.amount.toString(10)), props.comment, 5*24*3600);
+                        swap = await props.swapper.createToBTCLNSwapViaLNURL(new PublicKey(props.token), props.bolt11PayReq, new BN(props.amount.toString(10)), props.comment, 5*24*3600);
                     } else {
-                        swap = await props.swapper.createSolToBTCLNSwap(new PublicKey(props.token), props.bolt11PayReq, 5*24*3600);
+                        swap = await props.swapper.createToBTCLNSwap(new PublicKey(props.token), props.bolt11PayReq, 5*24*3600);
                     }
                 }
                 if(props.swapType===SwapType.TO_BTC) {
-                    swap = await props.swapper.createSolToBTCSwap(new PublicKey(props.token), props.bolt11PayReq, new BN(props.amount.toString(10)));
+                    swap = await props.swapper.createToBTCSwap(new PublicKey(props.token), props.bolt11PayReq, new BN(props.amount.toString(10)));
                 }
                 setSwap(swap);
             } catch (e) {

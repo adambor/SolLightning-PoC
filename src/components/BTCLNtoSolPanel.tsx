@@ -6,13 +6,18 @@ import {Alert, Button, Spinner} from "react-bootstrap";
 import QRCode from "qrcode.react";
 import {AnchorProvider, BN} from "@coral-xyz/anchor";
 import {FEConstants} from "../FEConstants";
-import {IBTCxtoSolSwap, BTCxtoSolSwapState, SolanaSwapper, SwapType, BTCtoSolNewSwapState, BTCtoSolNewSwap, BTCLNtoSolSwap} from "sollightning-sdk";
+import {
+    SolanaSwapper,
+    SwapType,
+    FromBTCLNSwapState,
+    FromBTCLNSwap, FromBTCSwapState, FromBTCSwap
+} from "sollightning-sdk";
 import {PublicKey} from "@solana/web3.js";
 
 export function BTCLNtoSolClaim(props: {
     onError: (string) => any,
     onSuccess: () => any,
-    swap: BTCLNtoSolSwap<any>
+    swap: FromBTCLNSwap<any>
 }) {
 
     const [sendingTx, setSendingTx] = useState<boolean>(false);
@@ -25,7 +30,7 @@ export function BTCLNtoSolClaim(props: {
         let timer;
         timer = setInterval(() => {
             const now = Date.now();
-            if(props.swap.getState()===BTCxtoSolSwapState.PR_PAID) {
+            if(props.swap.getState()===FromBTCLNSwapState.PR_PAID) {
                 if(props.swap.getExpiry()<now && !sendingTx) {
                     props.onError("Swap expired!");
                     if(timer!=null) clearInterval(timer);
@@ -104,7 +109,7 @@ export function BTCLNtoSolClaim(props: {
 
         console.log("Swap: ", props.swap);
 
-        if(props.swap.getState()===BTCxtoSolSwapState.PR_CREATED) {
+        if(props.swap.getState()===FromBTCLNSwapState.PR_CREATED) {
             props.swap.waitForPayment(_abortController.signal, null).then(() => {
                 //
             }).catch(e => {
@@ -137,7 +142,7 @@ export function BTCLNtoSolClaim(props: {
 
     return (
         <div className="d-flex flex-column justify-content-center align-items-center">
-            {state===BTCxtoSolSwapState.PR_CREATED ? (props.swap.isLNURL() ? (
+            {state===FromBTCLNSwapState.PR_CREATED ? (props.swap.isLNURL() ? (
                 <>
                     <b>Receiving through LNURL-withdraw</b>
                 </>
@@ -180,12 +185,12 @@ export function BTCLNtoSolClaim(props: {
             <b>Fee: </b>{props.swap==null ? "0."+"0".repeat(tokenDecimals) : new BigNumber(props.swap.getFee().toString()).dividedBy(tokenDivisor).toFixed(tokenDecimals)} {tokenSymbol}
             <b>Total received: </b>{props.swap==null ? "0."+"0".repeat(tokenDecimals) : new BigNumber(props.swap.getOutAmount().toString()).dividedBy(tokenDivisor).toFixed(tokenDecimals)} {tokenSymbol}
 
-            {state===BTCxtoSolSwapState.PR_CREATED ? (
+            {state===FromBTCLNSwapState.PR_CREATED ? (
                 <div className="d-flex flex-column justify-content-center align-items-center mt-4">
                     <Spinner animation="border" />
                     <b>Waiting for payment...</b>
                 </div>
-            ) : (state===BTCxtoSolSwapState.PR_PAID || state===BTCxtoSolSwapState.CLAIM_COMMITED) ? (
+            ) : (state===FromBTCLNSwapState.PR_PAID || state===FromBTCLNSwapState.CLAIM_COMMITED) ? (
                 <>
                     {/*{isBeginRequired ? (*/}
                         {/*<Button onClick={commit} disabled={sendingTx || claimBegun}>*/}
@@ -196,7 +201,7 @@ export function BTCLNtoSolClaim(props: {
                     {/*<Button onClick={claim} disabled={sendingTx || (isBeginRequired ? !claimBegun : false)}>*/}
                         {/*{isBeginRequired ? "2. " : ""}Finish claim {props.swap==null ? "" : new BigNumber(props.swap.getOutAmount().toString()).dividedBy(Bitcoin.satsMultiplier).toFixed(8)} BTC*/}
                     {/*</Button>*/}
-                    {state===BTCxtoSolSwapState.PR_PAID && !sendingTx ? (
+                    {state===FromBTCLNSwapState.PR_PAID && !sendingTx ? (
                         <>
                             <b>Expires in: </b>{props.swap==null ? "0" : Math.floor((props.swap.getExpiry()-currentTimestamp)/1000)} seconds
                         </>
@@ -205,7 +210,7 @@ export function BTCLNtoSolClaim(props: {
                         Claim {props.swap==null ? "" : new BigNumber(props.swap.getOutAmount().toString()).dividedBy(tokenDivisor).toFixed(tokenDecimals)} {tokenSymbol}
                     </Button>
                 </>
-            ) : state===BTCxtoSolSwapState.CLAIM_CLAIMED ? (
+            ) : state===FromBTCLNSwapState.CLAIM_CLAIMED ? (
                 <Alert variant="success">
                     Swap successful
                 </Alert>
@@ -223,12 +228,12 @@ export function BTCLNtoSolClaim(props: {
 export function BTCtoSolClaim(props: {
     onError: (string) => any,
     onSuccess: () => any,
-    swap: BTCtoSolNewSwap<any>
+    swap: FromBTCSwap<any>
 }) {
 
     const [sendingTx, setSendingTx] = useState<boolean>(false);
 
-    const [state, setState] = useState<number>(0);
+    const [state, setState] = useState<FromBTCSwapState>(0);
 
     const [txId, setTxId] = useState<string>(null);
     const [confirmations, setConfirmations] = useState<number>(null);
@@ -242,7 +247,7 @@ export function BTCtoSolClaim(props: {
         let timer;
         timer = setInterval(() => {
             const now = Date.now();
-            if(props.swap.getState()===BTCtoSolNewSwapState.PR_CREATED) {
+            if(props.swap.getState()===FromBTCSwapState.PR_CREATED) {
                 console.log("State: PR_CREATED", props.swap);
                 if(props.swap.getExpiry()<now && !sendingTx) {
                     props.onError("Swap expired!");
@@ -321,13 +326,13 @@ export function BTCtoSolClaim(props: {
             setSecondsRemaining(Math.floor(msRemaining/1000));
         }, 1000);
 
-        if(props.swap.getState()===BTCtoSolNewSwapState.CLAIM_COMMITED) {
+        if(props.swap.getState()===FromBTCSwapState.CLAIM_COMMITED) {
             listenForPayment();
         }
 
         const listener = (swap) => {
             setState(swap.state);
-            if(swap.state===BTCtoSolNewSwapState.CLAIM_COMMITED) {
+            if(swap.state===FromBTCSwapState.CLAIM_COMMITED) {
                 listenForPayment();
             }
         };
@@ -354,7 +359,7 @@ export function BTCtoSolClaim(props: {
 
     return (
         <div className="d-flex flex-column justify-content-center align-items-center">
-            {state===BTCtoSolNewSwapState.CLAIM_COMMITED && txId==null ? (
+            {state===FromBTCSwapState.CLAIM_COMMITED && txId==null ? (
                 <>
                     <ValidatedInput
                         className="mb-4"
@@ -391,7 +396,7 @@ export function BTCtoSolClaim(props: {
             <b>Fee: </b>{props.swap==null ? "0."+"0".repeat(tokenDecimals) : new BigNumber(props.swap.getFee().toString()).dividedBy(tokenDivisor).toFixed(tokenDecimals)} {tokenSymbol}
             <b>Total received: </b>{props.swap==null ? "0."+"0".repeat(tokenDecimals) : new BigNumber(props.swap.getOutAmount().toString()).dividedBy(tokenDivisor).toFixed(tokenDecimals)} {tokenSymbol}
 
-            {state===BTCtoSolNewSwapState.CLAIM_COMMITED ? (
+            {state===FromBTCSwapState.CLAIM_COMMITED ? (
                 <div className="d-flex flex-column justify-content-center align-items-center mt-4">
                     <Spinner animation="border" />
                     {txId!=null ? (
@@ -419,7 +424,7 @@ export function BTCtoSolClaim(props: {
                         </>
                     )}
                 </div>
-            ) : (state===BTCtoSolNewSwapState.PR_CREATED) ? (
+            ) : (state===FromBTCSwapState.PR_CREATED) ? (
                 <>
                     {/*{isBeginRequired ? (*/}
                     {/*<Button onClick={commit} disabled={sendingTx || claimBegun}>*/}
@@ -440,13 +445,13 @@ export function BTCtoSolClaim(props: {
                         Begin claim of {props.swap==null ? "" : new BigNumber(props.swap.getOutAmount().toString()).dividedBy(tokenDivisor).toFixed(tokenDecimals)} {tokenSymbol}
                     </Button>
                 </>
-            ) : state===BTCtoSolNewSwapState.BTC_TX_CONFIRMED ? (
+            ) : state===FromBTCSwapState.BTC_TX_CONFIRMED ? (
                 <>
                     <Button onClick={claim} disabled={sendingTx}>
                         Claim {props.swap==null ? "" : new BigNumber(props.swap.getOutAmount().toString()).dividedBy(tokenDivisor).toFixed(tokenDecimals)} {tokenSymbol}
                     </Button>
                 </>
-            ) : state===BTCtoSolNewSwapState.CLAIM_CLAIMED ? (
+            ) : state===FromBTCSwapState.CLAIM_CLAIMED ? (
                 <Alert variant="success">
                     Swap successful
                 </Alert>
@@ -492,13 +497,13 @@ function BTCLNtoSolPanel(props: {
                     if(props.swapType===SwapType.FROM_BTCLN) {
                         if(props.lnurl!=null && props.lnurl!=="") {
                             console.log("Creating swap with lnurl: ", props.lnurl);
-                            createdSwap = await props.swapper.createBTCLNtoSolSwapViaLNURL(new PublicKey(props.token), props.lnurl, new BN(props.amount.toString(10)));
+                            createdSwap = await props.swapper.createFromBTCLNSwapViaLNURL(new PublicKey(props.token), props.lnurl, new BN(props.amount.toString(10)));
                         } else {
-                            createdSwap = await props.swapper.createBTCLNtoSolSwap(new PublicKey(props.token), new BN(props.amount.toString(10)));
+                            createdSwap = await props.swapper.createFromBTCLNSwap(new PublicKey(props.token), new BN(props.amount.toString(10)));
                         }
                     }
                     if(props.swapType===SwapType.FROM_BTC) {
-                        createdSwap = await props.swapper.createBTCtoSolSwap(new PublicKey(props.token), new BN(props.amount.toString(10)));
+                        createdSwap = await props.swapper.createFromBTCSwap(new PublicKey(props.token), new BN(props.amount.toString(10)));
                     }
                     setSwap(createdSwap);
                     setLoading(false);
@@ -535,11 +540,11 @@ function BTCLNtoSolPanel(props: {
 
             {swap!=null ? (
                 <>
-                    {swap instanceof BTCLNtoSolSwap ? (
+                    {swap instanceof FromBTCLNSwap ? (
                         <BTCLNtoSolClaim swap={swap} onError={setError} onSuccess={() => {
 
                         }}/>
-                    ) : swap instanceof BTCtoSolNewSwap ? (
+                    ) : swap instanceof FromBTCSwap ? (
                         <BTCtoSolClaim swap={swap} onError={setError} onSuccess={() => {
 
                         }}/>

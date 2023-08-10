@@ -4,7 +4,7 @@ import BigNumber from "bignumber.js";
 import { Alert, Button, Spinner } from "react-bootstrap";
 import { BN } from "@coral-xyz/anchor";
 import { FEConstants } from "../FEConstants";
-import { SwapType, SolToBTCxSwapState } from "sollightning-sdk";
+import { SwapType, ToBTCSwapState } from "sollightning-sdk";
 import { PublicKey } from "@solana/web3.js";
 export function SoltoBTCLNRefund(props) {
     const [loading, setLoading] = useState(false);
@@ -17,7 +17,7 @@ export function SoltoBTCLNRefund(props) {
         let timer;
         timer = setInterval(() => {
             const now = Date.now();
-            if (props.swap.getState() === SolToBTCxSwapState.CREATED) {
+            if (props.swap.getState() === ToBTCSwapState.CREATED) {
                 if (props.swap.getExpiry() < now && !sendingTx) {
                     props.onError("Swap expired!");
                     if (timer != null)
@@ -41,7 +41,7 @@ export function SoltoBTCLNRefund(props) {
         }
         const listener = (swap) => {
             setState(swap.state);
-            if (swap.state === SolToBTCxSwapState.CREATED) {
+            if (swap.state === ToBTCSwapState.CREATED) {
                 setLoading(true);
                 (async () => {
                     const neededToPay = props.swap.getInAmount();
@@ -72,6 +72,7 @@ export function SoltoBTCLNRefund(props) {
             props.onRefunded();
         }
         catch (e) {
+            console.error(e);
             if (typeof (e) === "string") {
                 props.onError(e);
             }
@@ -105,9 +106,9 @@ export function SoltoBTCLNRefund(props) {
     const tokenSymbol = tokenData.symbol;
     const tokenDecimals = tokenData.decimals;
     const tokenDivisor = new BigNumber(10).pow(new BigNumber(tokenData.decimals));
-    return (_jsxs("div", Object.assign({ className: "d-flex flex-column justify-content-center align-items-center" }, { children: [_jsx("b", { children: "Amount: " }), props.swap == null ? "0." + "0".repeat(tokenDecimals) : new BigNumber(props.swap.getInAmountWithoutFee().toString()).dividedBy(tokenDivisor).toFixed(tokenDecimals), " ", tokenSymbol, _jsx("b", { children: "Fee: " }), props.swap == null ? "0." + "0".repeat(tokenDecimals) : new BigNumber(props.swap.getFee().toString()).dividedBy(tokenDivisor).toFixed(tokenDecimals), " ", tokenSymbol, _jsx("b", { children: "Total: " }), props.swap == null ? "0." + "0".repeat(tokenDecimals) : new BigNumber(props.swap.getInAmount().toString()).dividedBy(tokenDivisor).toFixed(tokenDecimals), " ", tokenSymbol, state === SolToBTCxSwapState.CREATED ? (_jsxs(_Fragment, { children: [!sendingTx ? (_jsxs(_Fragment, { children: [_jsx("b", { children: "Expires in: " }), props.swap == null ? "0" : Math.floor((props.swap.getExpiry() - currentTimestamp) / 1000), " seconds"] })) : "", _jsxs(Button, Object.assign({ disabled: sendingTx || expired, onClick: pay }, { children: ["Pay ", props.swap == null ? "" : new BigNumber(props.swap.getInAmount().toString()).dividedBy(tokenDivisor).toFixed(tokenDecimals), " ", tokenSymbol] }))] })) : state === SolToBTCxSwapState.REFUNDABLE ? (_jsxs(_Fragment, { children: [_jsx(Alert, Object.assign({ variant: "error" }, { children: "Error occurred when trying to process the swap (recipient unreachable?)" })), _jsxs(Button, Object.assign({ onClick: refund, disabled: sendingTx }, { children: ["Refund ", props.swap == null ? "" : new BigNumber(props.swap.getInAmount().toString()).dividedBy(tokenDivisor).toFixed(tokenDecimals), " ", tokenSymbol] }))] })) : state === SolToBTCxSwapState.COMMITED ? (_jsx(_Fragment, { children: props.swap.getTxId() != null ? (_jsxs(Alert, Object.assign({ variant: "success" }, { children: ["Swap successful (", props.swap.getTxId(), ")"] }))) : (_jsxs(_Fragment, { children: [_jsx(Spinner, { animation: "border" }), _jsx("b", { children: "Payment in progress..." })] })) })) : state === SolToBTCxSwapState.CLAIMED ? (_jsxs(Alert, Object.assign({ variant: "success", style: {
+    return (_jsxs("div", Object.assign({ className: "d-flex flex-column justify-content-center align-items-center" }, { children: [_jsx("b", { children: "Amount: " }), props.swap == null ? "0." + "0".repeat(tokenDecimals) : new BigNumber(props.swap.getInAmountWithoutFee().toString()).dividedBy(tokenDivisor).toFixed(tokenDecimals), " ", tokenSymbol, _jsx("b", { children: "Fee: " }), props.swap == null ? "0." + "0".repeat(tokenDecimals) : new BigNumber(props.swap.getFee().toString()).dividedBy(tokenDivisor).toFixed(tokenDecimals), " ", tokenSymbol, _jsx("b", { children: "Total: " }), props.swap == null ? "0." + "0".repeat(tokenDecimals) : new BigNumber(props.swap.getInAmount().toString()).dividedBy(tokenDivisor).toFixed(tokenDecimals), " ", tokenSymbol, state === ToBTCSwapState.CREATED ? (_jsxs(_Fragment, { children: [!sendingTx ? (_jsxs(_Fragment, { children: [_jsx("b", { children: "Expires in: " }), props.swap == null ? "0" : Math.floor((props.swap.getExpiry() - currentTimestamp) / 1000), " seconds"] })) : "", _jsxs(Button, Object.assign({ disabled: sendingTx || expired, onClick: pay }, { children: ["Pay ", props.swap == null ? "" : new BigNumber(props.swap.getInAmount().toString()).dividedBy(tokenDivisor).toFixed(tokenDecimals), " ", tokenSymbol] }))] })) : state === ToBTCSwapState.REFUNDABLE ? (_jsxs(_Fragment, { children: [_jsx(Alert, Object.assign({ variant: "error" }, { children: "Error occurred when trying to process the swap (recipient unreachable?)" })), _jsxs(Button, Object.assign({ onClick: refund, disabled: sendingTx }, { children: ["Refund ", props.swap == null ? "" : new BigNumber(props.swap.getInAmount().toString()).dividedBy(tokenDivisor).toFixed(tokenDecimals), " ", tokenSymbol] }))] })) : state === ToBTCSwapState.COMMITED ? (_jsx(_Fragment, { children: props.swap.getTxId() != null ? (_jsxs(Alert, Object.assign({ variant: "success" }, { children: ["Swap successful (", props.swap.getTxId(), ")"] }))) : (_jsxs(_Fragment, { children: [_jsx(Spinner, { animation: "border" }), _jsx("b", { children: "Payment in progress..." })] })) })) : state === ToBTCSwapState.CLAIMED ? (_jsxs(Alert, Object.assign({ variant: "success", style: {
                     maxWidth: "400px"
-                } }, { children: ["Swap successful (", props.swap.getTxId(), ")"] }))) : state === SolToBTCxSwapState.REFUNDED ? (_jsx(Alert, Object.assign({ variant: "danger" }, { children: "Swap failed (Money refunded)" }))) : state === SolToBTCxSwapState.FAILED ? (_jsx(Alert, Object.assign({ variant: "danger" }, { children: "Swap failed" }))) : ""] })));
+                } }, { children: ["Swap successful (", props.swap.getTxId(), ")"] }))) : state === ToBTCSwapState.REFUNDED ? (_jsx(Alert, Object.assign({ variant: "danger" }, { children: "Swap failed (Money refunded)" }))) : state === ToBTCSwapState.FAILED ? (_jsx(Alert, Object.assign({ variant: "danger" }, { children: "Swap failed" }))) : ""] })));
 }
 function SolToBTCLNPanel(props) {
     const [loading, setLoading] = useState(null);
@@ -125,14 +126,14 @@ function SolToBTCLNPanel(props) {
                 let swap;
                 if (props.swapType === SwapType.TO_BTCLN) {
                     if (props.swapper.isValidLNURL(props.bolt11PayReq)) {
-                        swap = await props.swapper.createSolToBTCLNSwapViaLNURL(new PublicKey(props.token), props.bolt11PayReq, new BN(props.amount.toString(10)), props.comment, 5 * 24 * 3600);
+                        swap = await props.swapper.createToBTCLNSwapViaLNURL(new PublicKey(props.token), props.bolt11PayReq, new BN(props.amount.toString(10)), props.comment, 5 * 24 * 3600);
                     }
                     else {
-                        swap = await props.swapper.createSolToBTCLNSwap(new PublicKey(props.token), props.bolt11PayReq, 5 * 24 * 3600);
+                        swap = await props.swapper.createToBTCLNSwap(new PublicKey(props.token), props.bolt11PayReq, 5 * 24 * 3600);
                     }
                 }
                 if (props.swapType === SwapType.TO_BTC) {
-                    swap = await props.swapper.createSolToBTCSwap(new PublicKey(props.token), props.bolt11PayReq, new BN(props.amount.toString(10)));
+                    swap = await props.swapper.createToBTCSwap(new PublicKey(props.token), props.bolt11PayReq, new BN(props.amount.toString(10)));
                 }
                 setSwap(swap);
             }

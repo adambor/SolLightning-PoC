@@ -7,7 +7,7 @@ import { useState } from "react";
 import { Card } from "react-bootstrap";
 import { useConnection, useAnchorWallet } from "@solana/wallet-adapter-react";
 import { AnchorProvider } from "@coral-xyz/anchor";
-import { SolanaSwapper, BTCLNtoSolSwap, BTCtoSolNewSwap, createSwapperOptions } from "sollightning-sdk";
+import { SolanaSwapper, FromBTCLNSwap, FromBTCSwap, createSwapperOptions } from "sollightning-sdk";
 import { FEConstants } from "./FEConstants";
 export default function WrappedApp() {
     const wallet = useAnchorWallet();
@@ -56,7 +56,7 @@ export default function WrappedApp() {
         })();
     }, [wallet]);
     return (_jsx(Card, Object.assign({ bg: "light" }, { children: _jsx(Card.Body, { children: swapper != null ? (_jsxs(_Fragment, { children: [claimableBTCLNtoEVM != null && claimableBTCLNtoEVM.length > 0 ? (_jsxs(Card, Object.assign({ className: "p-3" }, { children: [_jsxs(Card.Title, { children: ["Incomplete swaps (BTC-", '>', "Solana)"] }), _jsx(Card.Body, { children: claimableBTCLNtoEVM.map((e, index) => {
-                                    if (e instanceof BTCLNtoSolSwap) {
+                                    if (e instanceof FromBTCLNSwap) {
                                         return (_jsx(BTCLNtoSolClaim, { swap: e, onError: setError, onSuccess: () => {
                                                 setClaimableBTCLNtoEVM(prevState => {
                                                     const cpy = [...prevState];
@@ -65,7 +65,7 @@ export default function WrappedApp() {
                                                 });
                                             } }, index));
                                     }
-                                    if (e instanceof BTCtoSolNewSwap) {
+                                    if (e instanceof FromBTCSwap) {
                                         return (_jsx(BTCtoSolClaim, { swap: e, onError: setError, onSuccess: () => {
                                                 setClaimableBTCLNtoEVM(prevState => {
                                                     const cpy = [...prevState];

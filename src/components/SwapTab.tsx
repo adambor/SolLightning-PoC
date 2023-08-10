@@ -18,6 +18,8 @@ function SwapTab(props: {
     swapper: SolanaSwapper
 }) {
 
+    const [debug, setDebug] = useState<string>(null);
+
     const [comment, setComment] = useState<string>(null);
     const commentRef = useRef<ValidatedInputRef>();
 
@@ -64,6 +66,18 @@ function SwapTab(props: {
 
     return (
         <Card className="p-3">
+
+
+            <Modal show={debug!=null} onHide={() => {
+                setDebug(null);
+            }}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Debug output</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {debug}
+                </Modal.Body>
+            </Modal>
 
             <Modal show={scanning} onHide={() => {
                 setScanning(false);
@@ -599,6 +613,12 @@ function SwapTab(props: {
                         Continue
                     </Button>
                 )}
+                {/*<Button onClick={() => {*/}
+                {/*    // @ts-ignore*/}
+                {/*    setDebug(window.localStorage.getItem("solSwaps-SoltoBTCLN"));*/}
+                {/*}}>*/}
+                {/*    Debug*/}
+                {/*</Button>*/}
             </Card.Body>
         </Card>
     );

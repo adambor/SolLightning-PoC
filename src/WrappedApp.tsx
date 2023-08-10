@@ -8,7 +8,7 @@ import {Card} from "react-bootstrap";
 import {useConnection, useAnchorWallet, AnchorWallet} from "@solana/wallet-adapter-react";
 import {AnchorProvider} from "@coral-xyz/anchor";
 
-import {SolanaSwapper, IBTCxtoSolSwap, ISolToBTCxSwap, BTCLNtoSolSwap, BTCtoSolNewSwap, CoinGeckoSwapPrice, SolanaChains,
+import {SolanaSwapper, IFromBTCSwap, IToBTCSwap, FromBTCLNSwap, FromBTCSwap, CoinGeckoSwapPrice, SolanaChains,
     BitcoinNetwork,
     createSwapperOptions} from "sollightning-sdk";
 import * as BN from "bn.js";
@@ -25,8 +25,8 @@ export default function WrappedApp() {
 
     const [swapper, setSwapper] = useState<SolanaSwapper>();
 
-    const [claimableBTCLNtoEVM, setClaimableBTCLNtoEVM] = useState<IBTCxtoSolSwap<any>[]>();
-    const [refundableEVMtoBTCLN, setRefundableEVMtoBTCLN] = useState<ISolToBTCxSwap<any>[]>();
+    const [claimableBTCLNtoEVM, setClaimableBTCLNtoEVM] = useState<IFromBTCSwap<any>[]>();
+    const [refundableEVMtoBTCLN, setRefundableEVMtoBTCLN] = useState<IToBTCSwap<any>[]>();
 
     useEffect(() => {
 
@@ -91,7 +91,7 @@ export default function WrappedApp() {
                                 <Card.Title>Incomplete swaps (BTC-{'>'}Solana)</Card.Title>
                                 <Card.Body>
                                     {claimableBTCLNtoEVM.map((e,index) => {
-                                        if(e instanceof BTCLNtoSolSwap) {
+                                        if(e instanceof FromBTCLNSwap) {
                                             return (
                                                 <BTCLNtoSolClaim key={index} swap={e} onError={setError} onSuccess={() => {
                                                     setClaimableBTCLNtoEVM(prevState => {
@@ -102,7 +102,7 @@ export default function WrappedApp() {
                                                 }}/>
                                             );
                                         }
-                                        if(e instanceof BTCtoSolNewSwap) {
+                                        if(e instanceof FromBTCSwap) {
                                             return (
                                                 <BTCtoSolClaim key={index} swap={e} onError={setError} onSuccess={() => {
                                                     setClaimableBTCLNtoEVM(prevState => {
