@@ -45,6 +45,18 @@ function SwapTab(props) {
         amountRef.current.validate();
         setVerifyAmount(false);
     }, [verifyAmount]);
+    useEffect(() => {
+        // @ts-ignore
+        const url = new URL(window.location.href);
+        const queryParameters = new URLSearchParams(url.search);
+        const val = queryParameters.get("lightning");
+        if (val == null)
+            return;
+        // @ts-ignore
+        window.history.replaceState({}, "", "/");
+        setAddress(val);
+        setVerifyAddress(true);
+    }, []);
     return (_jsxs(Card, Object.assign({ className: "p-3" }, { children: [_jsxs(Modal, Object.assign({ show: debug != null, onHide: () => {
                     setDebug(null);
                 } }, { children: [_jsx(Modal.Header, Object.assign({ closeButton: true }, { children: _jsx(Modal.Title, { children: "Debug output" }) })), _jsx(Modal.Body, { children: debug })] })), _jsxs(Modal, Object.assign({ show: scanning, onHide: () => {

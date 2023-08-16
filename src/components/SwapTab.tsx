@@ -64,6 +64,23 @@ function SwapTab(props: {
         setVerifyAmount(false);
     }, [verifyAmount]);
 
+    useEffect(() => {
+
+        // @ts-ignore
+        const url = new URL(window.location.href);
+        const queryParameters = new URLSearchParams(url.search)
+
+        const val = queryParameters.get("lightning");
+
+        if(val==null) return;
+
+        // @ts-ignore
+        window.history.replaceState({},"","/");
+
+        setAddress(val);
+        setVerifyAddress(true);
+    }, []);
+
     return (
         <Card className="p-3">
 
