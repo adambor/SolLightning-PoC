@@ -186,17 +186,17 @@ function SwapTab(props: {
                             //     key: FEConstants.wbtcToken.toBase58()
                             // },
                             {
+                                value: "SOL",
+                                key: FEConstants.wsolToken.toBase58()
+                            },
+                            {
                                 value: "USDC",
                                 key: FEConstants.usdcToken.toBase58()
-                            },
+                            }
                             // {
                             //     value: "USDT",
                             //     key: FEConstants.usdtToken.toBase58()
                             // },
-                            {
-                                value: "SOL",
-                                key: FEConstants.wsolToken.toBase58()
-                            }
                         ]
                     }
                 />
@@ -556,13 +556,24 @@ function SwapTab(props: {
                 {step===1 ? (
                     <>
                         {kind==="SoltoBTCLN" ? (
-                            <SolToBTCLNPanel token={token} bolt11PayReq={address} amount={amount==null ? null : new BigNumber(amount).multipliedBy(FEConstants.satsPerBitcoin)} comment={comment} swapType={SwapType.TO_BTCLN} swapper={props.swapper}/>
+                            <SolToBTCLNPanel token={token} bolt11PayReq={address} amount={amount==null ? null : new BigNumber(amount).multipliedBy(FEConstants.satsPerBitcoin)} comment={comment} swapType={SwapType.TO_BTCLN} swapper={props.swapper} onSuccess={() => {
+
+                            }}/>
                         ) : kind==="BTCLNtoSol" ? (
-                            <BTCLNtoSolPanel token={token} lnurl={address} amount={new BigNumber(amount).multipliedBy(FEConstants.satsPerBitcoin)} swapType={SwapType.FROM_BTCLN} swapper={props.swapper}/>
+                            <BTCLNtoSolPanel token={token} lnurl={address} amount={new BigNumber(amount).multipliedBy(FEConstants.satsPerBitcoin)} swapType={SwapType.FROM_BTCLN} swapper={props.swapper} onSuccess={() => {
+                                setLnurlState(null);
+                                setLnurlLoading(false);
+                                setAddress("");
+                                setAddressError(null);
+                            }}/>
                         ) : kind==="BTCtoSol" ? (
-                            <BTCLNtoSolPanel token={token} amount={new BigNumber(amount).multipliedBy(FEConstants.satsPerBitcoin)} swapType={SwapType.FROM_BTC} swapper={props.swapper}/>
+                            <BTCLNtoSolPanel token={token} amount={new BigNumber(amount).multipliedBy(FEConstants.satsPerBitcoin)} swapType={SwapType.FROM_BTC} swapper={props.swapper} onSuccess={() => {
+
+                            }}/>
                         ) : (
-                            <SolToBTCLNPanel token={token} bolt11PayReq={address} amount={new BigNumber(amount).multipliedBy(FEConstants.satsPerBitcoin)} swapType={SwapType.TO_BTC} swapper={props.swapper}/>
+                            <SolToBTCLNPanel token={token} bolt11PayReq={address} amount={new BigNumber(amount).multipliedBy(FEConstants.satsPerBitcoin)} swapType={SwapType.TO_BTC} swapper={props.swapper} onSuccess={() => {
+
+                            }}/>
                         )}
                         <Button className="mt-3" variant="secondary" size={"lg"} onClick={() => {
                             setStep(0);

@@ -192,7 +192,8 @@ function SolToBTCLNPanel(props: {
     amount?: BigNumber,
     comment?: string,
     swapper: SolanaSwapper,
-    swapType: SwapType.TO_BTC | SwapType.TO_BTCLN
+    swapType: SwapType.TO_BTC | SwapType.TO_BTCLN,
+    onSuccess?: () => void
 }) {
 
     const [loading, setLoading] = useState<boolean>(null);
@@ -256,7 +257,7 @@ function SolToBTCLNPanel(props: {
                 <SoltoBTCLNRefund swap={swap} onError={(e) => {
                     setError(e);
                 }} onSuccess={() => {
-
+                    if(props.onSuccess!=null) props.onSuccess();
                 }} onRefunded={() => {
 
                 }}/>

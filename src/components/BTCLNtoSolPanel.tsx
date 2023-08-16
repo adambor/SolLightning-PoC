@@ -144,7 +144,7 @@ export function BTCLNtoSolClaim(props: {
         <div className="d-flex flex-column justify-content-center align-items-center">
             {state===FromBTCLNSwapState.PR_CREATED ? (props.swap.isLNURL() ? (
                 <>
-                    <b>Receiving through LNURL-withdraw</b>
+                    <b>Receiving through LNURL-withdraw...</b>
                 </>
             ) : (
                 <>
@@ -171,11 +171,13 @@ export function BTCLNtoSolClaim(props: {
                 </>
             )) : ""}
 
-            <Alert variant="success" style={{
-                maxWidth: "400px"
-            }}>
-                Send the lightning network payment first, then finish the swap by claiming it here (the claim button will appear when the payment arrives).
-            </Alert>
+            {!props.swap.isLNURL() ? (
+                <Alert variant="success" style={{
+                    maxWidth: "400px"
+                }}>
+                    Send the lightning network payment first, then finish the swap by claiming it here (the claim button will appear when the payment arrives).
+                </Alert>
+            ) : ""}
 
             {/*<b>Security deposit: </b>*/}
             {/*{props.swap==null ? "0."+"0".repeat(nativeTokenDecimals) : new BigNumber(props.swap.getSecurityDeposit().toString()).dividedBy(nativeTokenDivisor).toFixed(nativeTokenDecimals)} {nativeTokenSymbol}*/}
@@ -471,7 +473,8 @@ function BTCLNtoSolPanel(props: {
     lnurl?: string,
     amount: BigNumber,
     swapper: SolanaSwapper,
-    swapType: SwapType.FROM_BTC | SwapType.FROM_BTCLN
+    swapType: SwapType.FROM_BTC | SwapType.FROM_BTCLN,
+    onSuccess?: () => void
 }) {
 
     const [loading, setLoading] = useState<boolean>(null);
@@ -521,7 +524,7 @@ function BTCLNtoSolPanel(props: {
         return () => {
             _abortController.abort();
         };
-    }, [props.swapper, props.swapType, props.amount]);
+    }, [props.swapper, props.swapType]);
 
     return (
         <div className="d-flex flex-column justify-content-center align-items-center">
@@ -542,11 +545,11 @@ function BTCLNtoSolPanel(props: {
                 <>
                     {swap instanceof FromBTCLNSwap ? (
                         <BTCLNtoSolClaim swap={swap} onError={setError} onSuccess={() => {
-
+                            if(props.onSuccess!=null) props.onSuccess();
                         }}/>
                     ) : swap instanceof FromBTCSwap ? (
                         <BTCtoSolClaim swap={swap} onError={setError} onSuccess={() => {
-
+                            if(props.onSuccess!=null) props.onSuccess();
                         }}/>
                     ) : ""}
                 </>

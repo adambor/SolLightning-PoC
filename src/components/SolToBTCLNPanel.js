@@ -152,6 +152,8 @@ function SolToBTCLNPanel(props) {
     return (_jsxs("div", Object.assign({ className: "d-flex flex-column justify-content-center align-items-center" }, { children: [loading ? (_jsxs("div", Object.assign({ className: "d-flex flex-column justify-content-center align-items-center mt-4" }, { children: [_jsx(Spinner, { animation: "border" }), _jsx("b", { children: "Loading..." })] }))) : "", error != null ? (_jsx(Alert, Object.assign({ variant: "danger" }, { children: error }))) : "", swap != null ? (_jsx(SoltoBTCLNRefund, { swap: swap, onError: (e) => {
                     setError(e);
                 }, onSuccess: () => {
+                    if (props.onSuccess != null)
+                        props.onSuccess();
                 }, onRefunded: () => {
                 } })) : ""] })));
 }

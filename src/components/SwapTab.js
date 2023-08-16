@@ -124,17 +124,17 @@ function SwapTab(props) {
                             //     key: FEConstants.wbtcToken.toBase58()
                             // },
                             {
+                                value: "SOL",
+                                key: FEConstants.wsolToken.toBase58()
+                            },
+                            {
                                 value: "USDC",
                                 key: FEConstants.usdcToken.toBase58()
-                            },
+                            }
                             // {
                             //     value: "USDT",
                             //     key: FEConstants.usdtToken.toBase58()
                             // },
-                            {
-                                value: "SOL",
-                                key: FEConstants.wsolToken.toBase58()
-                            }
                         ] }), _jsx(ValidatedInput, { disabled: step !== 0, inputRef: kindRef, className: "mb-4", type: "select", label: (_jsx("span", Object.assign({ className: "fw-semibold" }, { children: "Type" }))), size: "lg", value: "" + kind, onChange: (val) => {
                             console.log("Value selected: ", val);
                             setKind(val);
@@ -317,7 +317,15 @@ function SwapTab(props) {
                                     setAmount(val);
                                 }, min: new BigNumber(props.swapper.getMinimum(SwapType.TO_BTC).toString(10)).dividedBy(FEConstants.satsPerBitcoin), max: new BigNumber(props.swapper.getMaximum(SwapType.TO_BTC).toString(10)).dividedBy(FEConstants.satsPerBitcoin), step: new BigNumber("0.00000001"), onValidate: (val) => {
                                     return val === "" ? "Amount cannot be empty" : null;
-                                } })] })), step === 1 ? (_jsxs(_Fragment, { children: [kind === "SoltoBTCLN" ? (_jsx(SolToBTCLNPanel, { token: token, bolt11PayReq: address, amount: amount == null ? null : new BigNumber(amount).multipliedBy(FEConstants.satsPerBitcoin), comment: comment, swapType: SwapType.TO_BTCLN, swapper: props.swapper })) : kind === "BTCLNtoSol" ? (_jsx(BTCLNtoSolPanel, { token: token, lnurl: address, amount: new BigNumber(amount).multipliedBy(FEConstants.satsPerBitcoin), swapType: SwapType.FROM_BTCLN, swapper: props.swapper })) : kind === "BTCtoSol" ? (_jsx(BTCLNtoSolPanel, { token: token, amount: new BigNumber(amount).multipliedBy(FEConstants.satsPerBitcoin), swapType: SwapType.FROM_BTC, swapper: props.swapper })) : (_jsx(SolToBTCLNPanel, { token: token, bolt11PayReq: address, amount: new BigNumber(amount).multipliedBy(FEConstants.satsPerBitcoin), swapType: SwapType.TO_BTC, swapper: props.swapper })), _jsx(Button, Object.assign({ className: "mt-3", variant: "secondary", size: "lg", onClick: () => {
+                                } })] })), step === 1 ? (_jsxs(_Fragment, { children: [kind === "SoltoBTCLN" ? (_jsx(SolToBTCLNPanel, { token: token, bolt11PayReq: address, amount: amount == null ? null : new BigNumber(amount).multipliedBy(FEConstants.satsPerBitcoin), comment: comment, swapType: SwapType.TO_BTCLN, swapper: props.swapper, onSuccess: () => {
+                                } })) : kind === "BTCLNtoSol" ? (_jsx(BTCLNtoSolPanel, { token: token, lnurl: address, amount: new BigNumber(amount).multipliedBy(FEConstants.satsPerBitcoin), swapType: SwapType.FROM_BTCLN, swapper: props.swapper, onSuccess: () => {
+                                    setLnurlState(null);
+                                    setLnurlLoading(false);
+                                    setAddress("");
+                                    setAddressError(null);
+                                } })) : kind === "BTCtoSol" ? (_jsx(BTCLNtoSolPanel, { token: token, amount: new BigNumber(amount).multipliedBy(FEConstants.satsPerBitcoin), swapType: SwapType.FROM_BTC, swapper: props.swapper, onSuccess: () => {
+                                } })) : (_jsx(SolToBTCLNPanel, { token: token, bolt11PayReq: address, amount: new BigNumber(amount).multipliedBy(FEConstants.satsPerBitcoin), swapType: SwapType.TO_BTC, swapper: props.swapper, onSuccess: () => {
+                                } })), _jsx(Button, Object.assign({ className: "mt-3", variant: "secondary", size: "lg", onClick: () => {
                                     setStep(0);
                                 } }, { children: "Back" }))] })) : (_jsx(Button, Object.assign({ className: "mt-3", size: "lg", onClick: () => {
                             if (!tokenRef.current.validate()) {
